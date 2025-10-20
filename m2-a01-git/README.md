@@ -67,3 +67,5 @@ git push origin main
 GitHub web interface displaying the new files in `test/` folder
 
 ![`GitHub web interface displaying the new files in `test/` folder`](images/06-github-folder-view.png)
+
+---
