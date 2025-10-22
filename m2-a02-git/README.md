@@ -20,6 +20,7 @@ Tasks To Be Performed:
 mkdir test
 cd test
 git init
+git branch -M main
 touch feature1.txt feature2.txt
 git add feature1.txt feature2.txt
 git commit -m "Add feature1.txt and feature2.txt"
