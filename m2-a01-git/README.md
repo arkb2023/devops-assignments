@@ -20,52 +20,61 @@ Tasks To Be Performed
 
 ***
 
-**a. Create a new folder**
+**Create a new folder and initialize git, put the files in the folder**
 ```bash
-mkdir test
-```
-**b. Put the following files in the folder**
-```bash
-touch test/code.txt test/log.txt test/output.txt
-```
-*Screenshot with folder and files*  
+# Create working directory
+mkdir m2-a01-git
+cd m2-a01-git
 
-![`Folder and files`](images/01-folder-with-3-files.png)
+# Initialize git
+git init
 
-**Show Untracked Files**
-```bash
+# create files
+touch code.txt log.txt output.txt
+
+# Show Untracked Files
 git status -uall
 ```
-*Screenshot showing unstaged files*  
+*Terminal view shows git working directory with unstaged files*  
 
-![`Unstaged files`](images/02-git-untracked-files.png)
+![`Unstaged files`](nimages/01-git-working-directory-with-3-untracked-files.png)
 
-**c. Stage the Code.txt and Output.txt files**
+**Stage the `Code.txt` and `Output.txt` files**
 ```bash
-git add test/code.txt test/output.txt
+git add code.txt output.txt
 ```
-*Screenshot showing 2 staged files*  
+*Terminal view shows 2 staged files*  
 
-![`Two files stages`](images/03-git-2-staged-files.png)
+![`Two files stages`](nimages/02-git-2-staged-files.png)
 
-**d. Commit them**
+**Commit them**
 ```bash
 git commit -m "Add initial code.txt and output.txt"
 ```
-*Screenshot showing 2 committed files*  
+*Terminal view shows 2 committed files*  
 
-![`Commit files`](images/04-git-commit.png)
+![`Commit files`](nimages/03-git-2-committed-files.png)
 
-**e. Push to GitHub**
+
+**Push to GitHub**
 ```bash
-git push origin main
+# Link remote GitHub repo
+git remote add origin git@github.com:arkb2023/m2-a01-git.git
+
+# Verify new remote added
+git remote -v
+
+# Push changes to remote and set upstream
+git push -u origin master
 ```
 
-![`Push files to GitHub`](images/05-git-push.png)
+*Terminal view shows 2 files pushed*  
+
+![`Push files to GitHub`](nimages/04-git-push.png)
 
 
-GitHub web interface displaying the new files in `test/` folder
+*GitHub web interface displaying pushed files in `master` branch*
 
-![`GitHub web interface displaying the new files in `test/` folder`](images/06-github-folder-view.png)
+![`GitHub web interface displaying the new files`](nimages/05-master-branch-shows-pushed-files-github-view.png)
 
 ---
