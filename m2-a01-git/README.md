@@ -37,7 +37,7 @@ git status -uall
 ```
 *Terminal view shows git working directory with unstaged files*  
 
-![`Unstaged files`](nimages/01-git-working-directory-with-3-untracked-files.png)
+![`Unstaged files`](images/01-git-working-directory-with-3-untracked-files.png)
 
 **Stage the `Code.txt` and `Output.txt` files**
 ```bash
@@ -45,7 +45,7 @@ git add code.txt output.txt
 ```
 *Terminal view shows 2 staged files*  
 
-![`Two files stages`](nimages/02-git-2-staged-files.png)
+![`Two files stages`](images/02-git-2-staged-files.png)
 
 **Commit them**
 ```bash
@@ -53,7 +53,7 @@ git commit -m "Add initial code.txt and output.txt"
 ```
 *Terminal view shows 2 committed files*  
 
-![`Commit files`](nimages/03-git-2-committed-files.png)
+![`Commit files`](images/03-git-2-committed-files.png)
 
 
 **Push to GitHub**
@@ -70,11 +70,11 @@ git push -u origin master
 
 *Terminal view shows 2 files pushed*  
 
-![`Push files to GitHub`](nimages/04-git-push.png)
+![`Push files to GitHub`](images/04-git-push.png)
 
 
 *GitHub web interface displaying pushed files in `master` branch*
 
-![`GitHub web interface displaying the new files`](nimages/05-master-branch-shows-pushed-files-github-view.png)
+![`GitHub web interface displaying the new files`](images/05-master-branch-shows-pushed-files-github-view.png)
 
 ---
