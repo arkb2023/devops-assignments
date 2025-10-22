@@ -18,7 +18,16 @@ Tasks To Be Performed:
 ```bash
 mkdir m2-a03-git
 cd m2-a03-git
+
+# Initialize git
 git init
+# Rename master branch to main
+git branch -M main
+touch initial.txt
+git add initial.txt
+git commit -m "Initial commit"
+
+# Create branches
 git branch develop
 git branch f1
 git branch f2

@@ -15,11 +15,12 @@ Tasks To Be Performed:
 
 ***
 
-### 1. Create a Git working directory with `feature1.txt` and `feature2.txt` in the master branch
+### 1. Create a Git working directory with `feature1.txt` and `feature2.txt` in the master or main branch
 ```
 mkdir test
 cd test
 git init
+# Rename master branch to main
 git branch -M main
 touch feature1.txt feature2.txt
 git add feature1.txt feature2.txt
