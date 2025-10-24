@@ -171,12 +171,6 @@ Open the forwarding URL in a browser to access local Jenkins instance remotely.
 
 ![Browser access Jenkins via ngrok public URL](images/13-browser-access-using-ngrok-public-url.png) 
 
-Use the ngrok public URL as the webhook endpoint when configuring GitHub to trigger Jenkins jobs automatically on pushes to your repository branches.
-
-Here’s a simpler, report-friendly rewrite of your earlier complex line about GitHub and ngrok:
-
-***
-
 **GitHub Webhook Setup**
 
 Use the **ngrok public URL** as the **Webhook URL** in GitHub repository settings. This allows GitHub to notify  local Jenkins server whenever code is pushed to the repository, triggering an automatic build.
