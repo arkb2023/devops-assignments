@@ -1,0 +1,98 @@
+pipeline {
+  // handles - test or main branch workflow
+  agent {
+    // Use dynamic agent selection based on branch (works for classic and multibranch setups)
+    //label "${params.BRANCH_NAME} == 'main' ? 'prod' : 'test'}"
+    label params.AGENT_LABEL
+    //agent { label 'test' }
+  }
+
+  environment {
+    SSH_KEY     = '/home/jenkins/.ssh/id_rsa'
+    TARGET_USER = 'jenkins'
+    TARGET_PATH = '/home/jenkins/deploy'
+    // Set default, can be overridden in environment or block below
+    //TARGET_HOST = "${params.BRANCH_NAME} == 'main' ? 'prod-server' : 'test-server'}"
+    //TARGET_HOST = (params.BRANCH_NAME == 'main') ? 'prod-server' : 'test-server'
+    REPO_URL    = 'https://github.com/arkb2023/m6-a02-jenkins.git'
+  }
+
+  options {
+    // Discard old builds, avoid pipeline overlap
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    disableConcurrentBuilds()
+    timestamps()
+  }
+
+  stages {
+
+    stage('Set Host') {
+      steps {
+        script {
+          // Set the env variable using Groovy expression:
+          env.TARGET_HOST = (params.BRANCH_NAME == 'main') ? 'prod-server' : 'test-server'
+          echo "TARGET_HOST ${env.TARGET_HOST}"
+        }
+      }
+    }
+
+    stage('Checkout') {
+      steps {
+        
+        echo "Checking out branch: ${params.BRANCH_NAME}, host is: ${env.TARGET_HOST}"
+        git branch: "${params.BRANCH_NAME}", url: "${env.REPO_URL}"
+      }
+    }
+
+    // stage('Pre-Deploy') {
+    //   steps {
+    //     script {
+    //       echo "Ensuring target path on remote server: ${TARGET_HOST}:${TARGET_PATH}"
+    //       sh """
+    //         ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} \
+    //           'mkdir -p ${TARGET_PATH} && chown ${TARGET_USER}:${TARGET_USER} ${TARGET_PATH}'
+    //       """
+    //     }
+    //   }
+    // }
+
+    stage('Deploy Code') {
+      steps {
+        script {
+          echo "Deploying branch ${params.BRANCH_NAME} to ${env.TARGET_HOST}:${TARGET_PATH}"
+          sh """
+            rsync -avz --no-g --delete -e "ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no" \
+              ./ ${TARGET_USER}@${env.TARGET_HOST}:${TARGET_PATH}/
+          """
+        }
+      }
+    }
+
+  //   // Optionally, add per-env post-deploy/verification steps
+  //   stage('Post-Deploy Test Check') {
+  //     when { branch 'test' }
+  //     steps {
+  //       echo "Running extra test-server checks (optional)..."
+  //       // Insert additional test actions if needed
+  //     }
+  //   }
+
+  //   stage('Post-Deploy Prod Check') {
+  //     when { branch 'main' }
+  //     steps {
+  //       echo "Running extra prod-server checks (optional)..."
+  //       // Insert additional prod actions if needed
+  //     }
+  //   }
+  // }
+
+  // post {
+  //   always {
+  //     echo "Completed deploy pipeline for branch: ${params.BRANCH_NAME}}"
+  //   }
+  //   cleanup {
+  //     echo 'Running cleanup...'
+  //     // Add cleanup steps if needed
+  //   }
+  }
+}
