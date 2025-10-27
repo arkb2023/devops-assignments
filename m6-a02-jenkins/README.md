@@ -14,9 +14,9 @@ Tasks To Be Performed:
 
 ### Prerequisites
 
-- Jenkins lab environment set up as detailed in [`Lab-Setup-Jenkins-Master-Agent`](../m6-jenkins-lab-setup/README.md)  
-- Ensure public access to the Jenkins UI via the `ngrok` tool
-- A publicly accessible GitHub repository named [`m6-a02-jenkins`](https://github.com/arkb2023/m6-a02-jenkins.git) was created specifically for testing purposes, featuring both `test` and `main` branches configured to support webhook-triggered pipeline builds.
+- Jenkins lab environment set up, with public access to Jenkins UI via the `ngrok` tool as detailed in [`Lab-Setup-Jenkins-Master-Agent`](../m6-jenkins-lab-setup/README.md)  
+- A publicly accessible GitHub repository named [`m6-a02-jenkins`](https://github.com/arkb2023/m6-a02-jenkins.git) created specifically for testing and containing both `test` and `main` branches to support webhook-triggered pipeline builds. 
+- The pipeline code file [`jenkinsfile`](https://github.com/arkb2023/devops-assignments/blob/main/m6-a02-jenkins/jenkinsfile) copied into the test repository [`m6-a02-jenkins`](https://github.com/arkb2023/m6-a02-jenkins.git)
 
 ### Step 1: Set Up Jenkins Pipeline Jobs
 
