@@ -40,7 +40,7 @@ Create **two Jenkins pipeline jobs** with the following settings:
   - *SCM*: `Git`
     - *Repository URL*: `https://github.com/arkb2023/m6-a02-jenkins.git`
     - *Branches to build*: `*/test`
-    - *Script Path*: `jenkinsfile`
+    - *Script Path*: [`jenkinsfile`](./jenkinsfile)
 
 **Screenshots:**
 
@@ -56,7 +56,7 @@ Create **two Jenkins pipeline jobs** with the following settings:
 
 ![Jenkins view shows the Triggers section for the `push-to-test` job, with “GitHub hook trigger for GITScm polling” enabled to allow GitHub webhooks to automatically trigger builds on push events.](images/jenkins-push-to-test/23-jenkins-push-to-test-job-configuration-triggers-view.png)
 
-*Jenkins view shows the `Pipeline` section with `Pipeline script from SCM` selected, `SCM` set to `Git`, the `repository URL` provided, and the `branch specifier` set to `*/test` along with the `script path` for the `jenkinsfile`*
+*Jenkins view shows the `Pipeline` section with `Pipeline script from SCM` selected, `SCM` set to `Git`, the `repository URL` provided, and the `branch specifier` set to `*/test` along with the `script path` for the [`jenkinsfile`](./jenkinsfile)*
 
 ![Jenkins view shows the Pipeline section with "Pipeline script from SCM" selected, SCM set to Git, the repository URL provided, and the branch specifier set to `*/test` along with the correct script path for the shared Jenkinsfile.](images/jenkins-push-to-test/24-jenkins-push-to-test-job-configuration-pipeline-view.png)
 
@@ -80,7 +80,7 @@ Create **two Jenkins pipeline jobs** with the following settings:
   - *SCM*: `Git`
     - *Repository URL*: `https://github.com/arkb2023/m6-a02-jenkins.git`
     - *Branches to build*: `*/main`
-    - *Script Path*: `jenkinsfile`
+    - *Script Path*: [`jenkinsfile`](./jenkinsfile)
 
 
 **Screenshots:**
@@ -97,13 +97,13 @@ Create **two Jenkins pipeline jobs** with the following settings:
 
 ![Jenkins view shows the Triggers section for the `push-to-prod` job, with “GitHub hook trigger for GITScm polling” enabled to allow GitHub webhooks to automatically trigger builds on push events.](images/jenkins-push-to-prod/23-jenkins-push-to-prod-job-configuration-triggers-view.png)
 
-*Jenkins view shows the `Pipeline` section with `Pipeline script from SCM` selected, `SCM` set to `Git`, the `repository URL` provided, and the `branch specifier` set to `*/main` along with the `script path` for the `jenkinsfile`*
+*Jenkins view shows the `Pipeline` section with `Pipeline script from SCM` selected, `SCM` set to `Git`, the `repository URL` provided, and the `branch specifier` set to `*/main` along with the `script path` for the [`jenkinsfile`](./jenkinsfile)*
 
 ![Jenkins view shows the Pipeline section with "Pipeline script from SCM" selected, SCM set to Git, the repository URL provided, and the branch specifier set to `*/main` along with the correct script path for the shared Jenkinsfile.](images/jenkins-push-to-prod/24-jenkins-push-to-prod-job-configuration-pipeline-view.png)
 
 ***
 
-> *Both jobs use the same Jenkinsfile, parameterized by branch, and trigger automatically via GitHub webhooks upon push events to their respective branches.*  
+> *Both jobs use the same [`jenkinsfile`](./jenkinsfile), parameterized by branch, and trigger automatically via GitHub webhooks upon push events to their respective branches.*  
 
 
 ### Step 2: Configure GitHub Webhook
@@ -185,7 +185,7 @@ Use the Jenkins UI to examine the `push-to-test` job’s `status` `console outpu
 
 ![Jenkins status for triggered job](images/jenkins-push-to-test/15-jenkins-push-to-test-job-status-view.png)
 
-*Jenkins `push-to-test` job #13 `console output` confirms usage of the Jenkinsfile from the script path and that execution occurred on the `test` node:*
+*Jenkins `push-to-test` job #13 `console output` confirms usage of the [`jenkinsfile`](./jenkinsfile) from the script path and that execution occurred on the `test` node:*
 - `Obtained jenkinsfile from ...`
 - `Running on test in /home/jenkins/agent/workspace/push-to-test`
 
@@ -321,7 +321,7 @@ Use the Jenkins UI to examine the `push-to-prod` job’s `status` `console outpu
 
 ![Jenkins status for triggered job](images/jenkins-push-to-prod/02-jenkins-push-to-prod-job-status-view.png)
 
-*Jenkins `push-to-prod` job #5 `console output` confirms usage of the Jenkinsfile from the script path and that execution occurred on the `main` node:*
+*Jenkins `push-to-prod` job #5 `console output` confirms usage of the [`jenkinsfile`](./jenkinsfile) from the script path and that execution occurred on the `main` node:*
 - `Obtained jenkinsfile from ...`
 - `Running on prod in /home/jenkins/agent/workspace/push-to-prod`
 
