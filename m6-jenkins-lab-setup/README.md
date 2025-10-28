@@ -1,7 +1,10 @@
-## Jenkins setup
-
 ### Introduction
-This document explains how to set up `Jenkins` with `Docker` on `Windows` using `WSL 2` with `Ubuntu 24.04`. It covers installation, configuration, and exposing Jenkins externally using `ngrok`.
+This document describes how to set up `Jenkins` with `Docker` on `Windows` using `WSL 2` (Ubuntu 24.04). It covers installation, configuration, and externally exposing Jenkins via `ngrok`.
+
+### Purpose
+This lab environment was designed specifically to support and complete Jenkins assignments, enabling automated CI/CD workflows, job chaining, and multi-environment deployment scenarios for hands-on learning and validation.
+
+![Jenkins Lab Setup](images/00-jenkins-lab-setup.png)
 
 
 ### Prerequisites
@@ -10,6 +13,7 @@ This document explains how to set up `Jenkins` with `Docker` on `Windows` using 
 - [Install Ubuntu on WSL 2 - Ubuntu Documentation](https://documentation.ubuntu.com/wsl/latest/howto/install-ubuntu-wsl2/)
 
 - [Install Docker Desktop on Windows with WSL 2 integration](https://docs.docker.com/desktop/setup/install/windows-install/)
+
 
 ### Setup Jenkins Master as a Docker Container
 
