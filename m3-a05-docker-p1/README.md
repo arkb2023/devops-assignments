@@ -2,17 +2,14 @@
 ![Status: Completed](https://img.shields.io/badge/Status-Completed-brightgreen)
 
 
-## Module 3: Docker Part 1 Assignment - 4
+## Module 3: Docker Part 1 Assignment - 5
 
 Tasks To Be Performed:  
-1. Create a Dockerfile with the following specs:  
-    - Ubuntu container  
-    - Apache2 installed  
-    - Apache2 should automatically run once the container starts  
-2. Submit the Dockerfile for assignment completion  
+1. Create a sample HTML file  
+2. Use the Dockerfile from the previous task  
+3. Replace this sample HTML file inside the Docker container with the default page  
 
 ---
-
 ### Dockerfile
 The [Dockerfile](./Dockerfile) is included in the local repository directory. It defines the steps to build the custom Apache2 web server container.
 
@@ -25,9 +22,16 @@ RUN apt update && \
     apt install -y apache2 && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
+# Copy custom HTML page
+COPY index.html /var/www/html/
+
 # When container starts, always run apache2 service in foreground
 ENTRYPOINT ["apachectl", "-D", "FOREGROUND"]
 ```
+
+**Sample Website HTML**  
+
+The file [index.html](./index.html) is included in the local repository directory. This file provides the custom homepage content that will be served by Apache2 in the container.
 
 ---
 
@@ -47,11 +51,16 @@ docker run -d -it --name ubuntu-apache2-server -p 80:80 ubuntu-apache2-server
 ```
 ![Run Container](images/02-container-running.png)
 
-### Curl access to apache2 server container from the host
+### Verify website access
 
+- **With curl:**
 ```bash
 curl -I http://localhost:80
 ```
 ![Curl access](images/03-curl-apache2-access-200OK.png)
+
+- **With browser:**  
+
+![Website access](images/04-webbrowser-apache2-page-access-success.png)
 
 ---

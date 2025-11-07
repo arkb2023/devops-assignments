@@ -11,9 +11,6 @@ Tasks To Be Performed:
 4. Start the Apache2 service  
 5. Verify if you are able to see the Apache2 service  
 
-
-Here are the **step-by-step commands for Assignment 3**:
-
 ***
 
 ### **1. Tag the saved image**

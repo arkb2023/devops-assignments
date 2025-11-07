@@ -10,6 +10,8 @@ Tasks To Be Performed:
 3. Install Apache2 on this container
 4. Check if you are able to access the Apache page on your browser
 
+---
+
 ### Pull Ubuntu container
 ```bash
 docker image pull ubuntu:latest
@@ -17,7 +19,9 @@ docker image pull ubuntu:latest
 
 ![Container image pulled](images/01-ubuntu-latest-image-pulled.png)
 
-### Run the container and map port 80 on the local
+---
+
+### Run the container and map port 80 on the local host
 ```bash
 docker run -d -it --name ubuntu-latest -p 127.0.0.1:80:80 ubuntu:latest 
 # Check running container 
@@ -25,6 +29,8 @@ docker container ls
 ```
 
 ![Running container on mapped port](images/02-ubuntu-latest-container-running.png)
+
+---
 
 ### Install Apache2
 ```bash
@@ -45,6 +51,8 @@ service apache2 status
 
 ![Apache2 installed](images/03-install-apache2-in-container.png)
 
+---
+
 ### Curl access to apache2 server container from the host
 
 ```bash
@@ -56,3 +64,5 @@ curl -I http://localhost:80
 ### Web browser access `http://127.0.0.1:80`
 
 ![Web browser access](images/05-webbrowser-apache2-page-access-success.png)
+
+---
