@@ -1,7 +1,8 @@
 FROM ubuntu:24.04
 
 ENV PATH="/usr/local/go/bin:${PATH}"
-ENV REQUEST_ORIGIN=http://localhost:5000
+# ENV REQUEST_ORIGIN=http://localhost:5000
+ENV REQUEST_ORIGIN=https://devops-assignments.onrender.com
 
 WORKDIR /usr/src/app
 COPY . .
