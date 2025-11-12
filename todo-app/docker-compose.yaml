@@ -1,0 +1,53 @@
+version: '3.9'
+services:
+  frontend:
+    build:
+      context: ./todo-frontend
+      dockerfile: dev.Dockerfile          # adjust to your frontend Dockerfile name
+    volumes:
+      - ./todo-frontend:/usr/src/app
+    environment:
+      - VITE_BACKEND_URL=http://backend:3000  # As consumed by your frontend
+    container_name: todo-frontend-dev
+    expose:
+      - 3000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./todo-backend
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ./todo-backend:/usr/src/app
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://mongo:27017/todos
+    container_name: todo-backend-dev
+    expose:
+      - 3000
+    depends_on:
+      - mongo
+      - redis
+
+  mongo:
+    image: mongo:7
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=todos
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:80
+    depends_on:
+      - frontend
+      - backend

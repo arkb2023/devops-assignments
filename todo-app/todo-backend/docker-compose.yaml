@@ -1,0 +1,32 @@
+services:
+  app:                    # The name of the service, can be anything
+    image: todo-backend-dev # Declares which image to use
+    #build: .              # Declares where to build if image is not found
+    build:
+      context: . # The context will pick this directory as the "build context"
+      dockerfile: dev.Dockerfile # This will simply tell which dockerfile to read
+
+    volumes:
+      - ./:/usr/src/app # The path can be relative, so ./ is enough to say "the same location as the docker-compose.yml"
+
+    ports:                # Declares the ports to publish
+      - 5173:5173
+    container_name: todo-backend-dev # This will name the container todo-frontend-dev
+
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://mongo:27017/todos
+    depends_on:
+      - redis
+      - mongo
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+
+  mongo:
+    image: mongo:7
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: todos

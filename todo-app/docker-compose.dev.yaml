@@ -1,0 +1,62 @@
+services:
+  todo-frontend-app:
+    image: todo-frontend-dev
+    build:
+      context: ./todo-frontend # The context will pick this directory as the "build context"
+      dockerfile: dev.Dockerfile # This will simply tell which dockerfile to read
+    volumes:
+      - ./todo-frontend:/usr/src/app # The path can be relative, so ./ is enough to say "the same location as the docker-compose.yml"
+    #ports: # comment if not required to be reachable from host directly
+      #- 5173:5173
+    #  - 3000:3000
+    # expose:
+    #   - 3000
+    container_name: todo-frontend-dev # This will name the container hello-front-dev
+    environment:
+      - VITE_BACKEND_URL=/api  # As consumed by your frontend
+  todo-backend-app:                    # The name of the service, can be anything
+    image: todo-backend-dev # Declares which image to use
+    build:
+      context: ./todo-backend # The context will pick this directory as the "build context"
+      dockerfile: dev.Dockerfile # This will simply tell which dockerfile to read
+
+    volumes:
+      - ./todo-backend:/usr/src/app # The path can be relative, so ./ is enough to say "the same location as the docker-compose.yml"
+
+    # ports:                # Declares the ports to publish
+    #   - 3000:3000
+    # expose:
+    #   - 3000
+    container_name: todo-backend-dev # This will name the container todo-frontend-dev
+
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - MONGO_URL=mongodb://mongo:27017/todos
+    depends_on:
+      - redis
+      - mongo
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+
+  mongo:
+    image: mongo:7
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: todos
+
+  debug-helper:
+    image: busybox
+
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8080:80
+    container_name: reverse-proxy
+    depends_on:
+      - todo-frontend-app # wait for the frontend container to be started
+      - todo-backend-app # wait for the frontend container to be started
