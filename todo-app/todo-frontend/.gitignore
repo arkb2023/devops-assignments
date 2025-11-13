@@ -31,3 +31,4 @@ build/
 *.db
 .docker/
 .env
+*lock.json

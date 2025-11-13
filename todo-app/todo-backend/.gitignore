@@ -71,3 +71,4 @@ build/
 *.db
 .docker/
 .env.local
+*lock.json
