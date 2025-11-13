@@ -29,5 +29,5 @@ jobs:
       with:
         context: ./e3.1-gha-pipeline/
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/express-app:v1.0.0
+        tags: ${{ secrets.DOCKER_USERNAME }}/express-app:v1.0.2
 
