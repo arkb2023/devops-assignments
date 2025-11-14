@@ -2,8 +2,7 @@ FROM ubuntu:24.04
 
 ENV DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC
 # ENV REACT_APP_BACKEND_URL=http://localhost:8080
-#ENV REACT_APP_BACKEND_URL=https://example-backend-jkvr.onrender.com
-ENV REACT_APP_BACKEND_URL=https://example-backend-yyul.onrender.com
+ENV REACT_APP_BACKEND_URL=https://example-backend.com
 
 WORKDIR /usr/src/app
 COPY . .
@@ -13,14 +12,10 @@ RUN apt-get update && \
     apt-get install -y nodejs && \
     node -v && npm -v && \
     npm install && \
-    npm run build && \
     npm install -g serve
 
 
 EXPOSE 5000
 
-# Default app
-ENTRYPOINT ["serve"]
-
-# Default arguments
-CMD ["-s", "-l", "5000", "build"]
+ENTRYPOINT ["sh", "-c"]
+CMD ["npm run build && serve -s -l ${PORT:-5000} build"]
