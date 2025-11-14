@@ -1,0 +1,57 @@
+name: Build and Deploy to Render Cloud
+
+on:
+  push:
+    branches: [main, dev-e3.2-gha-render-integration]
+    paths:
+      - 'e3.2-gha-render-integration/**'
+      - '.github/workflows/deploy-to-render-e3.2.yaml'
+
+jobs:
+  # Frontend Deploy Job
+  deploy-frontend:
+    name: Deploy Frontend to Render
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+
+    steps:
+    # Checkout repository
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    # Deploy to Render frontend service    
+    - name: Deploy to Render Frontend Service
+      uses: JorgeLNJunior/render-deploy@v1.4.6
+      with:
+        service_id: ${{ secrets.EXAMPLE_FRONTEND_RENDER_SERVICE_ID }}
+        api_key: ${{ secrets.RENDER_API_KEY }}
+        clear_cache: true # Optional: Clear Render's build cache
+        wait_deploy: true # Wait for deploy to finish before job ends
+        github_deployment: true
+        deployment_environment: 'production'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Backend Deploy Job
+  deploy-backend:
+    name: Deploy Backend to Render
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+    steps:
+    # Checkout repository
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    # Deploy to Render backend service
+    - name: Deploy to Render Frontend Service
+      uses: JorgeLNJunior/render-deploy@v1.4.6
+      with:
+        service_id: ${{ secrets.EXAMPLE_BACKEND_RENDER_SERVICE_ID }}
+        api_key: ${{ secrets.RENDER_API_KEY }}
+        clear_cache: true # Optional: Clear Render's build cache
+        wait_deploy: true
+        github_deployment: true
+        deployment_environment: 'production'
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
