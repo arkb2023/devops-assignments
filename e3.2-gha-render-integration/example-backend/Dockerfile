@@ -2,7 +2,7 @@ FROM ubuntu:24.04
 
 ENV PATH="/usr/local/go/bin:${PATH}"
 # ENV REQUEST_ORIGIN=http://localhost:5000
-ENV REQUEST_ORIGIN=https://example-frontend-5cw9.onrender.com
+ENV REQUEST_ORIGIN=https://example-frontend-wbzs.onrender.com/
 
 WORKDIR /usr/src/app
 COPY . .
