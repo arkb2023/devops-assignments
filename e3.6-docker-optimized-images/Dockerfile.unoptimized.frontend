@@ -1,0 +1,26 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC
+# ENV REACT_APP_BACKEND_URL=http://localhost:8080
+ENV REACT_APP_BACKEND_URL=https://example-backend-jkvr.onrender.com
+
+WORKDIR /usr/src/app
+COPY . .
+RUN apt-get update 
+RUN apt-get install -y curl
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get install -y nodejs
+RUN node -v
+RUN npm -v
+RUN npm install
+RUN npm run build
+RUN npm install -g serve
+
+
+EXPOSE 5000
+
+# Default app
+ENTRYPOINT ["serve"]
+
+# Default arguments
+CMD ["-s", "-l", "5000", "build"]
