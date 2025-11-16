@@ -1,3 +1,13 @@
+
+### Docker Image Size and Optimization Comparison
+
+This analysis examines containerized web app images for the [frontend](https://github.com/docker-hy/material-applications/tree/main/example-frontend) and [backend](https://github.com/docker-hy/material-applications/tree/main/example-backend) projects using the following Docker image variants
+
+1. Ubuntu:24.04 - Unoptimized image
+2. Ubuntu:24.04 - Optimized image
+3. node:16-alpine - Preinstalled Node image for frontend
+4. golang:1.16-alpine - Preinstalled Go image for backtend
+
 ### Frontend
 ```bash
 $ docker images |egrep "frontend|SIZE"
@@ -28,8 +38,11 @@ backend-app-unoptimized         latest        340d935488fd   8 hours ago        
 
 | Dockerfile                      | FROM              | Size   | Comment                                                        |
 |----------------------------------|-------------------|--------|----------------------------------------------------------------|
-| Dockerfile.preinstalled.backend  | golang:1.16-alpine | 934MB  | Alpine base with preinstalled Go; still includes source code, Go toolchain, and build artifacts. |
-| Dockerfile.optimized.backend     | ubuntu:24.04        | 877MB  | Optimized for fewer layers and some cleanup, but Ubuntu base and build chain retained.            |
-| Dockerfile.unoptimized.backend   | ubuntu:24.04        | 1.69GB | Many layers, little or no cleanup, largest due to source code, dev files, and full toolchain.     |
+| [Dockerfile.preinstalled.backend](./Dockerfile.preinstalled.backend)  | golang:1.16-alpine | 934MB  | Alpine base with preinstalled Go; still includes source code, Go toolchain, and build artifacts. |
+| [Dockerfile.optimized.backend](../e3.6-docker-optimized-images/Dockerfile.optimized.frontend)     | ubuntu:24.04        | 877MB  | Optimized for fewer layers and some cleanup, but Ubuntu base and build chain retained.            |
+| [Dockerfile.unoptimized.backend](../e3.6-docker-optimized-images/Dockerfile.unoptimized.backend)   | ubuntu:24.04        | 1.69GB | Many layers, little or no cleanup, largest due to source code, dev files, and full toolchain.     |
 
 ***
+
+> Note:
+All comparisons use single-stage Dockerfiles; multi-stage builds are not considered in these experiments.
