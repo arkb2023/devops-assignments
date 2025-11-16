@@ -1,0 +1,23 @@
+FROM golang:1.16-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache --virtual .build-deps
+
+# Copy only go.mod and go.sum first for better build caching (optional, improves dev builds)
+COPY go.mod go.sum ./
+RUN go mod download
+
+# copy the rest of the source code
+COPY . .
+
+# Build binary statically (if possible)
+RUN go build -ldflags="-s -w" -o server . \
+  && find . -type f ! -name 'server' -delete
+
+# Remove build dependencies and extra files to save space
+RUN rm -rf /root/.cache && \
+    apk del .build-deps
+
+EXPOSE 8080
+CMD ["./server"]
