@@ -166,3 +166,4 @@ print_info "Image: $DOCKERHUB_REPO:latest"
 if [ -n "${GIT_HASH:-}" ]; then
     print_info "Also tagged as: $DOCKERHUB_REPO:$GIT_HASH"
 fi
+print_info "View on Docker Hub: https://hub.docker.com/r/$DOCKERHUB_REPO"
