@@ -146,10 +146,9 @@ X-Powered-By: Express
 
 ---
 
-### **3. Optimize the [Dockerfile.optimized](./Dockerfile.optimized)**
+### **3. Applying Dockerfile Optimizations**
 
-Below is the optimized, best-practices multi-stage Dockerfile:
-
+Below is the optimized, best-practices multi-stage Dockerfile- **[Dockerfile.optimized](./Dockerfile.optimized)**
 ```dockerfile
 # -----------------------------------------------
 # Stage 1:
