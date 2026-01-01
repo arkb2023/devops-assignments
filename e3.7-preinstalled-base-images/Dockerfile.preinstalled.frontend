@@ -18,3 +18,85 @@ RUN npm install -g serve && \
 
 EXPOSE 5000
 CMD ["serve", "-s", "build", "-l", "5000"]
+
+
+
+# # ==============================================================================
+# # Optimized Single-Stage Dockerfile for React Frontend (Alpine Linux)
+# # ==============================================================================
+# # PURPOSE: Build and serve React application with minimal size and non-root security
+# # BASE: Alpine Linux 3.18 | RUNTIME: Node.js 16.x + serve | PORT: 5000
+# # 
+# # ARCHITECTURE:
+# #   Section #1: Root-privileged setup and build preparation
+# #   Section #2: Non-root runtime execution
+# #
+# # BUILD: docker build -f Dockerfile.alpine -t example-frontend-alpine \
+# #        --build-arg REACT_APP_BACKEND_URL=/api .
+# # RUN:   docker run -p 5000:5000 example-frontend-alpine
+# #
+# # IMAGE SIZE ESTIMATE: ~200-250MB (60% smaller than Ubuntu single-stage!)
+# # ==============================================================================
+
+# FROM node:16-alpine3.18
+
+# # ==============================================================================
+# # Section #1: Root-Privileged Setup & Build Preparation
+# # ==============================================================================
+# # Operations requiring root privileges:
+# #   - Install 'serve' package globally
+# #   - Create non-root user (appuser)
+# #   - Install application dependencies
+# #   - Build React application
+# #   - Set file ownership for non-root user
+# # ==============================================================================
+
+# WORKDIR /usr/src/app
+
+# # Install serve globally for serving static files (requires root)
+# # Create non-root user using Alpine's adduser command
+# # Note: Alpine uses 'adduser' instead of 'useradd'
+# RUN npm install -g serve && \
+#     adduser -D -s /bin/sh appuser && \
+#     chown appuser:appuser /usr/src/app
+
+# # Copy package manifests with non-root ownership
+# COPY --chown=appuser:appuser package*.json ./
+
+# # Install all npm dependencies
+# # (includes devDependencies needed for build)
+# RUN npm install
+
+# # Copy application source code with non-root ownership
+# COPY --chown=appuser:appuser . .
+
+# # Configure backend API endpoint (default: /api for relative path)
+# # Can be overridden at build time with --build-arg
+# ARG REACT_APP_BACKEND_URL=/api
+# ENV REACT_APP_BACKEND_URL=${REACT_APP_BACKEND_URL}
+
+# # Build the React application
+# # Generates optimized production build in ./build directory
+# RUN npm run build
+
+# # Final ownership check to ensure all files belong to appuser
+# RUN chown -R appuser:appuser /usr/src/app
+
+# # Switch to non-root user for runtime security
+# USER appuser
+
+# # ==============================================================================
+# # Section #2: Non-Root Runtime Execution
+# # ==============================================================================
+# # Runtime operations as appuser:
+# #   - Expose application port (documentation only)
+# #   - Serve static build files on port 5000
+# # ==============================================================================
+
+# # Expose application port
+# EXPOSE 5000
+
+# # Serve the static build files using serve package
+# # -s: Serve as SPA (single-page application)
+# # -l: Listen on port 5000
+# CMD ["serve", "-s", "-l", "5000", "build"]
