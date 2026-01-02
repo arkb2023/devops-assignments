@@ -26,7 +26,7 @@ Assignment-5 solution builds on the reusable `ec2` module from [Assignment 4](..
 - HTTP access: Security group opens port 80 (0.0.0.0/0)
 - Verification: curl <EIP> shows Apache page
 - EIP + SSH: Full connectivity maintained
-- [`environments/a04/`](../a05/): Environment for Assignment 5
+- [`environments/a05/`](../a05/): Environment for Assignment 5
 - [`environments/a04/`](../a04/): Environment for Assignment 4
 - [`environments/a03/`](../a03/): Environment for Assignment 3
 - [`environments/a02/`](../a02/): Environment for Assignment 2
