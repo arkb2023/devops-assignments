@@ -8,8 +8,10 @@
 crash.log
 crash.*.log
 
-# Plan files
-*.tfplan
+# Terraform plans (recursive)
+**/*.tfplan
+**/*.tfplan.*
+**/tfplan*
 
 # Override and local config files
 override.tf
@@ -23,9 +25,13 @@ terraform.rc
 *.tfvars
 *.tfvars.json
 
+
 # OS/editor junk
 .DS_Store
 *.swp
 *.swo
 .idea/
 .vscode/
+
+
+*xx*

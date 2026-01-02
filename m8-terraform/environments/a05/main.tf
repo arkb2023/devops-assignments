@@ -29,6 +29,7 @@ module "ec2_instance" {
   subnet_id               = module.vpc.public_subnet_id
   vpc_id                  = module.vpc.vpc_id
   user_data               = local.apache_user_data   # PASS SCRIPT
+
 }
 
 # To create environments/a05/instance_ip.txt with the IPs after apply.

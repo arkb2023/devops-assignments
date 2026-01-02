@@ -77,6 +77,13 @@ resource "aws_instance" "this" {
   
   # a05
   user_data = var.user_data
+
+  metadata_options {
+    http_tokens                 = "optional"  # IMDSv1 + v2
+    http_endpoint               = "enabled"
+    instance_metadata_tags      = "enabled"
+    http_put_response_hop_limit = 2
+  }
   
   tags = {
     Name = var.instance_name

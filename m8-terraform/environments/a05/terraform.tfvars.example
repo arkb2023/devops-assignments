@@ -1,0 +1,2 @@
+aws_region = "us-east-2"
+my_ip      = "0.0.0.0/32" # Set it with client IP

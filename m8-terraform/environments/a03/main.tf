@@ -5,7 +5,7 @@ module "hello_ohio" {
   source = "../../modules/ec2"
 
   providers = {
-    aws   = aws.ohio
+    aws   = aws.ohio    # Use "ohio" AWS provider (us-east-2)
     tls   = tls
     local = local
   }
@@ -23,8 +23,8 @@ module "hello_virginia" {
   source = "../../modules/ec2"
 
   providers = {
-    aws   = aws.virginia
-    tls   = tls
+    aws   = aws.virginia    # Use "virginia" AWS provider (us-east-1)
+    tls   = tls             
     local = local
   }
 
