@@ -1,72 +1,77 @@
-Ansible Assignment - 1
-  Tasks To Be Performed:
-  1. Setup Ansible cluster with 3 nodes
-  2. On slave 1 install Java
-  3. On slave 2 install MySQL server
-  Do the above tasks using Ansible Playbooks
+### Ansible projects  
 
-Ansible Assignment - 2
-  Tasks To Be Performed:
-  1. Create a script which can add text “This text has been added by custom script” to /tmp.1.txt
-  2. Run this script using Ansible on all the hosts
+**Cluster Setups:**  
+1. [Cluster: 3-Node Setup](./setup-3-nodes/README.md)  
+2. [Cluster: 5-Node Setup](./setup-5-nodes/README.md)
 
-Ansible Assignment - 3
-Tasks To Be Performed:
-1. Create 2 Ansible roles
-2. Install Apache2 on slave1 using one role and NGINX on slave2 using the other role
-3. Above should be implemented using different Ansible roles
+---
 
-Ansible Assignment - 4
-Tasks To Be Performed:
-1. Use the previous deployment of Ansible cluster
-2. Configure the files folder in the role with index.html which should be replaced with the original index.html
-All of the above should only happen on the slave which has NGINX installed using the role.
+**Assignments:**  
+1. [Basic Playbook](./a01/README.md)  
+2. [Copy Module](./a02/README.md)  
+3. [Apache + Nginx Roles](./a03/README.md)  
+4. [Custom NGINX Index](./a04/README.md)  
+5. [5-Node Java + MySQL](./a05/README.md)  
 
-Ansible Assignment - 5
-Tasks To Be Performed:
-1. Create a new deployment of Ansible cluster of 5 nodes
-2. Label 2 nodes as test and other 2 as prod
-3. Install Java on test nodes
-4. Install MySQL server on prod nodes
-Use Ansible roles for the above and group the hosts under test and prod
+---
 
+**[m5-ansible/](../m5-ansible/) code organization:**  
+<pre>
+# --------- Module 5 Root folder ----------------------------------
+m5-ansible/  
+├── README.md                          # Master TOC + assignments
+├── ansible.cfg                        # Global Ansible config
+└── inventory/
+    ├── hosts-3node.ini                # A1-A4 cluster IPs/groups
+    └── hosts-5node.ini                # A5 cluster IPs/groups
+# ---------- 3 & 5 Node cluster setup ------------------------------
+├── setup-3-nodes                      # 3-node cluster setup
+│   └── README.md                      
+├── setup-5-nodes                      # 5-node cluster setup 
+│   └── README.md        
 
-ansible-assignments/
-├── ansible.cfg                  # Global config: inventory=inventory/, roles_path=roles/
-├── inventory/
-│   ├── hosts-3node.ini         # Assignment 1-4: [control], [slave1], [slave2]
-│   └── hosts-5node.ini         # Assignment 5: [control], [test:children], [prod:children]
-├── group_vars/                 # Shared vars (e.g., all.yml for common packages)
-│   └── all.yml
-├── roles/                      # Reusable roles
-│   ├── java/
-│   │   ├── tasks/main.yml      # apt: name=openjdk-11-jdk state=present
-│   │   ├── handlers/main.yml   # service restart if needed
-│   │   └── vars/main.yml
-│   ├── mysql/
-│   │   ├── tasks/main.yml      # apt: name=mysql-server, debconf tasks
-│   │   └── handlers/main.yml   # service mysql start/enabled
+# ------------ Reusable Roles --------------------------------------
+├── roles/                             # Reusable roles
 │   ├── apache2/
-│   │   ├── tasks/main.yml      # apt: apache2, service enabled
-│   │   └── templates/          # Optional index.html.j2
+│   │   ├── tasks/main.yml             # Apache2 install/start
+│   ├── java/
+│   │   ├── tasks/main.yml             # OpenJDK 11 install
+│   ├── mysql/
+│   │   ├── tasks/main.yml             # MySQL install/start/enable
 │   └── nginx/
-│       ├── tasks/main.yml      # apt: nginx, service enabled
-│       ├── files/index.html    # Custom index for Assignment 4
-│       └── handlers/main.yml
-├── assignment-1/
-│   ├── site.yml                # Playbook: hosts=all, tasks for slave1 java, slave2 mysql
-│   ├── README.md               # Solution overview, execution, screenshots
-│   └── images/                 # java -version, mysql --version outputs
-├── assignment-2/
-│   ├── files/add-text.sh       # #!/bin/bash echo "This text..." >> /tmp/1.txt
-│   ├── site.yml                # script: src=files/add-text.sh
-│   └── README.md
-├── assignment-3/
-│   ├── site.yml                # import_role: java on slave1? Wait, apache/nginx roles
-│   └── README.md
-├── assignment-4/
-│   ├── site.yml                # Target nginx hosts, copy files/index.html to /var/www/html/
-│   └── README.md
-└── assignment-5/
-    ├── site.yml                 # groups: test, prod; roles on respective groups
-    └── README.md
+│       ├── tasks/main.yml             # NGINX install/start
+│       ├── handlers/main.yml          # NGINX restart handler
+│       └── files/index.html           # A4 custom index
+
+# ------------ Assignment #1 --------------------------------------
+├── a01/                                Basic playbook
+│   ├── README.md                      # Steps + screenshots
+│   ├── images/                        # Proof screenshots
+│   └── site.yml                       # Single play: all hosts
+
+# ------------ Assignment #2 --------------------------------------
+├── a02/                               # Copy module
+│   ├── README.md
+│   ├── files/add-text.sh              # Source script
+│   ├── images/
+│   └── site.yml                       # Copy task
+
+# ------------ Assignment #3 -------------------------------------
+├── a03/                               # Roles intro
+│   ├── README.md
+│   ├── images/
+│   └── site.yml                       # Multi-play: apache(slave1), nginx(slave2)
+
+# ------------ Assignment #4 -------------------------------------
+├── a04/                               # Custom files
+│   ├── README.md
+│   └── images/                        # Screenshots
+
+# ------------ Assignment #5 -------------------------------------
+├── a05/                               # Groups + multi-role
+│   ├── README.md
+│   ├── images/                        # Screenshots
+│   └── site.yml                       # Multi-play: java(test), mysql(prod)
+</pre>
+
+---

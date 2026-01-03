@@ -42,7 +42,7 @@
   ```bash
   multipass list
   ```
-  ![cluster](./images/control/02-3node-multipass-cluster.png)
+  ![cluster](./images/02-3node-multipass-cluster.png)
 
 ### 3. Ansible on control  
 
@@ -51,7 +51,7 @@
   multipass exec control -- sudo apt install ansible-core -y
   multipass exec control -- ansible --version
   ```
-  ![Ansible installed](./images/control/11-control-ansible-version.png)
+  ![Ansible installed](./images/11-control-ansible-version.png)
 
 ### 4. SSH setup (keys + passwordless)  
 - Create SSH dir and generate SSH public key (control node) 
@@ -67,7 +67,7 @@
   ```
 - Verify id_rsa, id_rsa.pub  
 
-  ![ssh-keygen on control node](./images/control/12-control-ssh-keygen.png)
+  ![ssh-keygen on control node](./images/12-control-ssh-keygen.png)
 
 - Get control node public key  
 
@@ -80,14 +80,14 @@
   echo "$CONTROL_PUBKEY" | multipass exec slave1 -- sudo tee -a /home/ubuntu/.ssh/authorized_keys
   ```
 
-  ![caption](./images/control/13-copy-control-pubkey-to-slave1-authorized_keys.png)
+  ![caption](./images/13-copy-control-pubkey-to-slave1-authorized_keys.png)
 
 - Copy to slave2 node  
   ```bash
   echo "$CONTROL_PUBKEY" | multipass exec slave2 -- sudo tee -a /home/ubuntu/.ssh/authorized_keys
   ```
 
-  ![caption](./images/control/14-copy-control-pubkey-to-slave2-authorized_keys.png)
+  ![caption](./images/14-copy-control-pubkey-to-slave2-authorized_keys.png)
 
 - Test passwordless ssh from `control` node to `slave1` node  
 
@@ -95,14 +95,14 @@
   multipass exec control -- ssh ubuntu@slave1
   ```
   
-  ![caption](./images/control/15-passwordless-ssh-from-control-to-slave1.png)
+  ![caption](./images/15-passwordless-ssh-from-control-to-slave1.png)
 
 - Test passwordless ssh from `control` node to `slave2` node
   ```bash
   multipass exec control -- ssh ubuntu@slave2
   ```
   
-  ![caption](./images/control/16-passwordless-ssh-from-control-to-slave2.png)
+  ![caption](./images/16-passwordless-ssh-from-control-to-slave2.png)
 
 ### 5. Mount codebase
 
@@ -111,7 +111,7 @@
   multipass mount ../m5-ansible control:/mnt/m5-ansible
   ```
 
-  ![caption](./images/control/17-mount-code-from-native-to-control.png)
+  ![caption](./images/17-mount-code-from-native-to-control.png)
 
 ### 6. Baseline ansible configuration settings  
 - Setup  [`ansible.cfg`](../ansible.cfg)  
@@ -136,7 +136,7 @@
   ```bash
   multipass shell control
   ```
-  ![caption](./images/control/18-ssh-control-node.png)
+  ![caption](./images/18-ssh-control-node.png)
 
 - ping inventory nodes  
 
@@ -144,7 +144,7 @@
   cd /mnt/m5-ansible
   ansible -i inventory/hosts-3node.ini all -m ping
   ```
-  ![caption](./images/control/18-ansible-cluster-ping.png)
+  ![caption](./images/18-ansible-cluster-ping.png)
 
 ---
 **3-node cluster ready!**  
