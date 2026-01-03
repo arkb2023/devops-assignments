@@ -10,7 +10,7 @@ All of the above should only happen on the slave which has NGINX installed using
 ### 1. 3-Node Cluster  
 - Follow [`setup`](../setup/README.md)  
 
-  ![3-Node Multipass Cluster](../setup/images/control/02-3node-multipass-cluster.png)
+  ![3-Node Multipass Cluster](../setup/images/02-3node-multipass-cluster.png)
 
 ---
 

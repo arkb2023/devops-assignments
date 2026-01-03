@@ -11,7 +11,7 @@ Do the above tasks using Ansible Playbooks
 ### 1. 3-Node Cluster  
 - Follow [`setup`](../setup/README.md)  
 
-  ![3-Node Multipass Cluster](../setup/images/control/02-3node-multipass-cluster.png)
+  ![3-Node Multipass Cluster](../setup/images/02-3node-multipass-cluster.png)
 
 ---
 
