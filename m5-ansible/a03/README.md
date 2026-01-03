@@ -8,7 +8,7 @@ Tasks To Be Performed:
 ---
 
 ### 1. 3-Node Cluster  
-- Follow [`setup`](../setup-3-nodes/README.md)  
+- Follow [`setup-3-nodes`](../setup-3-nodes/README.md)  
 
   ![3-Node Multipass Cluster](../setup-3-nodes/images/02-3node-multipass-cluster.png)
 
