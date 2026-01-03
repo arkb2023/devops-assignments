@@ -41,13 +41,12 @@ Welcome! This repository contains multiple DevOps assignments. Each assignment r
 5. [VPC + EC2 + Apache2 + IP File](./m8-terraform/environments/a05/README.md)  
 
 ### Ansible  
-A. [Cluster: 3-Node Setup](./m5-ansible/setup-3-nodes/README.md)
-B. [Cluster: 5-Node Setup](./m5-ansible/setup-5-nodes/README.md)
 1. [Basic Playbook](./m5-ansible/a01/README.md)
 2. [Copy Module](./m5-ansible/a02/README.md)  
 3. [Apache + Nginx Roles](./m5-ansible/a03/README.md)
 4. [Custom NGINX Index](./m5-ansible/a04/README.md)
 5. [5-Node Java + MySQL](./m5-ansible/a05/README.md)
+
 
 
 ---
