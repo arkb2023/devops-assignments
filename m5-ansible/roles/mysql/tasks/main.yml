@@ -1,0 +1,17 @@
+---
+- name: Update apt cache  
+  apt:
+    # Refreshes package index (idempotent).
+    update_cache: yes
+
+- name: Install MySQL Server
+  apt:
+    name: mysql-server
+    state: present
+
+# Starts service + auto-starts on boot (enabled=yes).
+- name: Start and enable MySQL
+  systemd:
+    name: mysql
+    state: started
+    enabled: yes

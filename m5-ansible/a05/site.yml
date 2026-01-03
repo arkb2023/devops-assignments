@@ -1,0 +1,12 @@
+---
+- name: Java on test nodes
+  hosts: test
+  become: yes
+  roles:
+    - java
+
+- name: MySQL on prod nodes
+  hosts: prod
+  become: yes
+  roles:
+    - mysql
