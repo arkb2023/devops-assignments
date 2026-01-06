@@ -138,7 +138,7 @@ Local 3-node `Multipass` cluster with `kubeadm` initialization, `containerd` run
 - [a02/README.md](../a02/README.md) for Assignment #2  
 - [a03/README.md](../a03/README.md) for Assignment #3
 - [a04/README.md](../a04/README.md) for Assignment #4
-- [a04/README.md](../a05/README.md) for Assignment #5
+- [a05/README.md](../a05/README.md) for Assignment #5
 
 ---
 
