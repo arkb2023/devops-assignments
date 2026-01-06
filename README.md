@@ -47,6 +47,11 @@ Welcome! This repository contains multiple DevOps assignments. Each assignment r
 4. [Custom NGINX Index](./m5-ansible/a04/README.md)
 5. [5-Node Java + MySQL](./m5-ansible/a05/README.md)
 
-
+### Kubernetes  
+1. [Provision 3-node Kubernetes cluster and deploy NGINX with 3 replicas](./m7-kubernetes/a01/README.md)
+2. [Expose NGINX via NodePort service and verify HTTP access in browser](./m7-kubernetes/a02/README.md)
+3. [Scale existing NGINX deployment from 3 to 5 replicas](./m7-kubernetes/a03/README.md)
+4. [Reconfigure NGINX service from NodePort to ClusterIP](./m7-kubernetes/a04/README.md)
+5. [Deploy NGINX with ClusterIP service and configure Ingress for HTTP routing](./m7-kubernetes/a05/README.md)
 
 ---
