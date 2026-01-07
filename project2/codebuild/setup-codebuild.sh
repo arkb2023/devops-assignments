@@ -1,0 +1,172 @@
+#!/bin/bash
+# automates the full CodeBuild pipeline setup from clean slate, addressing past issues like 
+# stale credentials, wrong secret formats, and orphans via comprehensive cleanup and idempotent operation
+# setup-codebuild.sh:
+# 1. CodeBuild project delete
+# 2. GitHub source credentials delete (list-source-credentials)
+# 3. Docker Hub Secrets Manager delete (describe-secret + delete-secret)  ← NEW
+# 4. terraform destroy
+# 5. source env.local.sh (incl. DOCKERHUB_*)
+# 6. GitHub secret upsert
+# 7. Docker Hub secret upsert  ← NEW
+# 8. terraform apply (IAM covers both secrets)
+# 9. import-source-credentials (GitHub only)
+# 10. manual build test
+# 11. create-webhook
+
+set -e
+
+source ../env.local.sh
+
+
+CODEBUILD_NAME="website-build"
+
+echo "1. Delete old codebuld project..."
+aws codebuild delete-project \
+  --region $AWS_REGION \
+  --name $CODEBUILD_NAME 2>/dev/null \
+  || true
+
+echo "2. Delete stale GitHub source credentials..."
+GITHUB_CRED_ARN=$(aws codebuild list-source-credentials \
+  --region "$AWS_REGION" \
+  --query 'sourceCredentialsInfos[?serverType==`GITHUB`].arn' \
+  --output text 2>/dev/null || echo "")
+if [ -n "$GITHUB_CRED_ARN" ] && [ "$GITHUB_CRED_ARN" != "None" ]; then
+  echo "Deleting GitHub credential: $GITHUB_CRED_ARN"
+  aws codebuild delete-source-credentials \
+    --region "$AWS_REGION" \
+    --arn "$GITHUB_CRED_ARN" || true
+else
+  echo "No GitHub credentials found."
+fi
+
+
+echo "terraform destroy..."
+terraform destroy -auto-approve
+
+
+# GitHub Hub secret (for buildspec)
+echo "GitHub Hub secret (for buildspec): $SECRET_NAME"
+# Try to get existing secret
+EXISTING_ARN=$(aws secretsmanager describe-secret \
+  --secret-id "$SECRET_NAME" \
+  --region "$AWS_REGION" \
+  --query ARN \
+  --output text 2>/dev/null || echo "")
+
+if [ -n "$EXISTING_ARN" ]; then
+  echo "Secret exists: $EXISTING_ARN"
+  echo "Updating PAT value..."
+  aws secretsmanager put-secret-value \
+    --secret-id "$SECRET_NAME" \
+    --secret-string "{
+      \"AuthType\": \"PERSONAL_ACCESS_TOKEN\",
+      \"ServerType\": \"GITHUB\",
+      \"Token\": \"$GITHUB_PAT\"
+    }" \
+    --region "$AWS_REGION"
+  SECRET_ARN="$EXISTING_ARN"
+else
+  echo "Creating new secret..."
+  SECRET_ARN=$(aws secretsmanager create-secret \
+    --region "$AWS_REGION" \
+    --name "$SECRET_NAME" \
+      --secret-string "{
+        \"AuthType\": \"PERSONAL_ACCESS_TOKEN\",
+        \"ServerType\": \"GITHUB\",
+        \"Token\": \"$GITHUB_PAT\"
+      }" \
+    --query ARN \
+    --output text)
+  echo "Created: $SECRET_ARN"
+fi
+
+# Docker Hub secret (for buildspec)
+
+echo "DockerHub Hub secret (for buildspec): $DOCKERHUB_SECRET"
+EXISTING_DH_ARN=$(aws secretsmanager describe-secret \
+  --secret-id "$DOCKERHUB_SECRET" \
+  --region "$AWS_REGION" \
+  --query ARN --output text 2>/dev/null || echo "")
+
+if [ -n "$EXISTING_DH_ARN" ]; then
+  echo "Updating Docker Hub secret..."
+  aws secretsmanager put-secret-value \
+    --secret-id "$DOCKERHUB_SECRET" \
+    --secret-string "{\"username\":\"$DOCKERHUB_USERNAME\",\"password\":\"$DOCKERHUB_PAT\"}" \
+    --region "$AWS_REGION"
+  DOCKERHUB_SECRET_ARN="$EXISTING_DH_ARN"
+else
+  echo "Creating Docker Hub secret..."
+  DOCKERHUB_SECRET_ARN=$(aws secretsmanager create-secret \
+    --name "$DOCKERHUB_SECRET" \
+    --secret-string "{\"username\":\"$DOCKERHUB_USERNAME\",\"password\":\"$DOCKERHUB_PAT\"}" \
+    --region "$AWS_REGION" \
+    --query ARN --output text)
+fi
+
+# Update tfvars
+cat > terraform.tfvars << EOF
+aws_region              = "$AWS_REGION"
+github_token_secret_arn = "$SECRET_ARN"
+dockerhub_token_secret_arn = "$DOCKERHUB_SECRET_ARN"
+EOF
+
+echo "Terraform"
+terraform init
+terraform apply -auto-approve
+
+echo "Import source credentials in codebuild"
+aws codebuild import-source-credentials \
+  --region $AWS_REGION \
+  --server-type GITHUB \
+  --auth-type SECRETS_MANAGER \
+  --token "$SECRET_ARN" \
+  --should-overwrite
+
+echo "Manual Test: Triggering build..."
+aws codebuild start-build \
+  --region "$AWS_REGION" \
+  --project-name "$CODEBUILD_NAME"
+BUILD_ID=$(aws codebuild list-builds-for-project \
+  --region "$AWS_REGION" \
+  --project-name "$CODEBUILD_NAME" \
+  --sort-order DESCENDING \
+  --max-items 1 \
+  --query 'ids[0]' \
+  --output text)
+
+echo "Build triggered: $BUILD_ID"
+
+# Poll status only
+echo "Polling status (max 10min)..."
+MAX_TRIES=60  # ~10min @10s
+for i in $(seq 1 $MAX_TRIES); do
+  STATUS=$(aws codebuild batch-get-builds \
+    --region "$AWS_REGION" \
+    --ids "$BUILD_ID" \
+    --query 'builds[0].buildStatus' \
+    --output text)
+
+  echo "[$i/$MAX_TRIES] $BUILD_ID: $STATUS"
+
+  if [[ "$STATUS" == "SUCCEEDED" ]]; then
+    echo "Manual build SUCCEEDED! ✅"
+    break
+  elif [[ "$STATUS" =~ ^(FAILED|FAULT|STOPPED|TIMED_OUT)$ ]]; then
+    echo "Manual build FAILED: $STATUS ❌"
+    exit 1
+  fi
+  sleep 10
+done
+
+echo "Creating webhook ..."
+aws codebuild create-webhook \
+  --region $AWS_REGION \
+  --project-name $CODEBUILD_NAME \
+  --filter-groups '[[{"type":"EVENT","pattern":"PUSH"}]]' \
+  || true
+
+echo "Pipeline ready!"
+echo "Test: cd ~/workspace/website && echo test >> README.md && git commit -m test && git push"
