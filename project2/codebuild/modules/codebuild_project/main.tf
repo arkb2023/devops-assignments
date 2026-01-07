@@ -105,5 +105,5 @@ resource "aws_codebuild_project" "this" {
     }
   }
 
-  # Webhook will be added separately (via console or future Terraform support)
+  # Webhook
 }

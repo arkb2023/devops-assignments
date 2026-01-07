@@ -1,32 +1,43 @@
 #!/bin/bash
-# automates the full CodeBuild pipeline setup from clean slate, addressing past issues like 
-# stale credentials, wrong secret formats, and orphans via comprehensive cleanup and idempotent operation
-# setup-codebuild.sh:
+# -----------------------------------------------------------------------------
+# Automates the full CodeBuild pipeline setup from clean slate, addressing past
+# issues like stale credentials, wrong secret formats, and orphans via 
+# comprehensive cleanup and idempotent operation
+# -----------------------------------------------------------------------------
+# Phase I: Cleanup Stale config if any
+# -----------------------------------------------------------------------------
 # 1. CodeBuild project delete
 # 2. GitHub source credentials delete (list-source-credentials)
-# 3. Docker Hub Secrets Manager delete (describe-secret + delete-secret)  ← NEW
-# 4. terraform destroy
-# 5. source env.local.sh (incl. DOCKERHUB_*)
-# 6. GitHub secret upsert
-# 7. Docker Hub secret upsert  ← NEW
-# 8. terraform apply (IAM covers both secrets)
-# 9. import-source-credentials (GitHub only)
-# 10. manual build test
-# 11. create-webhook
+# 3. terraform destroy
+# -----------------------------------------------------------------------------
+# Phase II: Fresh Setup
+# -----------------------------------------------------------------------------
+# 4. GitHub secret upsert
+# 5. Docker Hub secret upsert 
+# 6. Update tfvars
+# 7. Terraform init
+# 8. Terraform apply
+# 9. Import GitHub source credentials from secrets manager
+# 10. Manual build test (Optional)
+# 11. Create webhook for push event
+# -----------------------------------------------------------------------------
 
 set -e
-
 source ../env.local.sh
-
 
 CODEBUILD_NAME="website-build"
 
-echo "1. Delete old codebuld project..."
+# 1. Cleanup first: CodeBuild project delete
+# -----------------------------------------------------------------------------
+echo "1. Delete old Codebuld project..."
 aws codebuild delete-project \
   --region $AWS_REGION \
   --name $CODEBUILD_NAME 2>/dev/null \
   || true
+echo "--------------------------------------------------------------------------"
 
+# 2. GitHub source credentials delete (list-source-credentials)
+# -----------------------------------------------------------------------------
 echo "2. Delete stale GitHub source credentials..."
 GITHUB_CRED_ARN=$(aws codebuild list-source-credentials \
   --region "$AWS_REGION" \
@@ -40,22 +51,23 @@ if [ -n "$GITHUB_CRED_ARN" ] && [ "$GITHUB_CRED_ARN" != "None" ]; then
 else
   echo "No GitHub credentials found."
 fi
+echo "--------------------------------------------------------------------------"
 
-
-echo "terraform destroy..."
+# 3. Terraform destroy
+# -----------------------------------------------------------------------------
+echo "3. Terraform destroy..."
 terraform destroy -auto-approve
+echo "--------------------------------------------------------------------------"
 
-
-# GitHub Hub secret (for buildspec)
-echo "GitHub Hub secret (for buildspec): $SECRET_NAME"
-# Try to get existing secret
+# 4. GitHub secret upsert (for buildspec)
+# -----------------------------------------------------------------------------
+echo "4. GitHub Hub secret (for buildspec): $SECRET_NAME"
 EXISTING_ARN=$(aws secretsmanager describe-secret \
   --secret-id "$SECRET_NAME" \
   --region "$AWS_REGION" \
   --query ARN \
   --output text 2>/dev/null || echo "")
-
-if [ -n "$EXISTING_ARN" ]; then
+  if [ -n "$EXISTING_ARN" ]; then
   echo "Secret exists: $EXISTING_ARN"
   echo "Updating PAT value..."
   aws secretsmanager put-secret-value \
@@ -81,9 +93,11 @@ else
     --output text)
   echo "Created: $SECRET_ARN"
 fi
+echo "--------------------------------------------------------------------------"
 
+# 5. Docker Hub secret upsert 
+# -----------------------------------------------------------------------------
 # Docker Hub secret (for buildspec)
-
 echo "DockerHub Hub secret (for buildspec): $DOCKERHUB_SECRET"
 EXISTING_DH_ARN=$(aws secretsmanager describe-secret \
   --secret-id "$DOCKERHUB_SECRET" \
@@ -105,68 +119,87 @@ else
     --region "$AWS_REGION" \
     --query ARN --output text)
 fi
+echo "--------------------------------------------------------------------------"
 
-# Update tfvars
+# 6. Update tfvars
+# -----------------------------------------------------------------------------
+echo "Update tfvars..."
 cat > terraform.tfvars << EOF
 aws_region              = "$AWS_REGION"
 github_token_secret_arn = "$SECRET_ARN"
 dockerhub_token_secret_arn = "$DOCKERHUB_SECRET_ARN"
 EOF
+echo "--------------------------------------------------------------------------"
 
-echo "Terraform"
+# 7. Terraform init
+# -----------------------------------------------------------------------------
+echo "Terraform Init..."
 terraform init
+echo "--------------------------------------------------------------------------"
+
+# 8. Terraform apply
+# -----------------------------------------------------------------------------
+echo "Terraform apply"
 terraform apply -auto-approve
 
-echo "Import source credentials in codebuild"
+# 9. Import GitHub source credentials from secrets manager
+# -----------------------------------------------------------------------------
+echo "Import source credentials from secrets manager into codebuild..."
 aws codebuild import-source-credentials \
   --region $AWS_REGION \
   --server-type GITHUB \
   --auth-type SECRETS_MANAGER \
   --token "$SECRET_ARN" \
   --should-overwrite
+echo "--------------------------------------------------------------------------"
 
-echo "Manual Test: Triggering build..."
-aws codebuild start-build \
-  --region "$AWS_REGION" \
-  --project-name "$CODEBUILD_NAME"
-BUILD_ID=$(aws codebuild list-builds-for-project \
-  --region "$AWS_REGION" \
-  --project-name "$CODEBUILD_NAME" \
-  --sort-order DESCENDING \
-  --max-items 1 \
-  --query 'ids[0]' \
-  --output text)
+# 10. Manual build test (Optional)
+# Uncomment for manual build Trigger
+# -----------------------------------------------------------------------------
+# echo "Manual Test: Triggering build..."
+# aws codebuild start-build \
+#   --region "$AWS_REGION" \
+#   --project-name "$CODEBUILD_NAME"
+# BUILD_ID=$(aws codebuild list-builds-for-project \
+#   --region "$AWS_REGION" \
+#   --project-name "$CODEBUILD_NAME" \
+#   --sort-order DESCENDING \
+#   --max-items 1 \
+#   --query 'ids[0]' \
+#   --output text)
 
-echo "Build triggered: $BUILD_ID"
+# echo "Build triggered: $BUILD_ID"
 
-# Poll status only
-echo "Polling status (max 10min)..."
-MAX_TRIES=60  # ~10min @10s
-for i in $(seq 1 $MAX_TRIES); do
-  STATUS=$(aws codebuild batch-get-builds \
-    --region "$AWS_REGION" \
-    --ids "$BUILD_ID" \
-    --query 'builds[0].buildStatus' \
-    --output text)
+# # Poll status only
+# echo "Polling status (max 10min)..."
+# MAX_TRIES=60  # ~10min @10s
+# for i in $(seq 1 $MAX_TRIES); do
+#   STATUS=$(aws codebuild batch-get-builds \
+#     --region "$AWS_REGION" \
+#     --ids "$BUILD_ID" \
+#     --query 'builds[0].buildStatus' \
+#     --output text)
 
-  echo "[$i/$MAX_TRIES] $BUILD_ID: $STATUS"
+#   echo "[$i/$MAX_TRIES] $BUILD_ID: $STATUS"
 
-  if [[ "$STATUS" == "SUCCEEDED" ]]; then
-    echo "Manual build SUCCEEDED! ✅"
-    break
-  elif [[ "$STATUS" =~ ^(FAILED|FAULT|STOPPED|TIMED_OUT)$ ]]; then
-    echo "Manual build FAILED: $STATUS ❌"
-    exit 1
-  fi
-  sleep 10
-done
+#   if [[ "$STATUS" == "SUCCEEDED" ]]; then
+#     echo "Manual build SUCCEEDED!"
+#     break
+#   elif [[ "$STATUS" =~ ^(FAILED|FAULT|STOPPED|TIMED_OUT)$ ]]; then
+#     echo "Manual build FAILED: $STATUS"
+#     exit 1
+#   fi
+#   sleep 10
+# done
 
-echo "Creating webhook ..."
+# 11. Create webhook for push event
+# -----------------------------------------------------------------------------
+echo "Creating webhook for push event..."
 aws codebuild create-webhook \
   --region $AWS_REGION \
   --project-name $CODEBUILD_NAME \
   --filter-groups '[[{"type":"EVENT","pattern":"PUSH"}]]' \
   || true
 
-echo "Pipeline ready!"
-echo "Test: cd ~/workspace/website && echo test >> README.md && git commit -m test && git push"
+echo "Codebuild pipeline setup done!"
+#echo "Test: cd ~/workspace/website && echo test >> README.md && git add README.md && git commit -m test && git push origin main"
