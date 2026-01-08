@@ -1,0 +1,26 @@
+---
+- name: Install k3s server (control plane)
+  shell: |
+    curl -sfL https://get.k3s.io | sh -s - \
+      --disable=traefik \
+      --disable=local-storage \
+      --cluster-init
+  environment:
+    K3S_KUBECONFIG_MODE: "0644"
+  become: yes
+  args:
+    creates: /usr/local/bin/k3s
+
+- name: Wait for k3s startup
+  pause:
+    seconds: 30
+
+- name: Get token for workers
+  shell: cat /var/lib/rancher/k3s/server/node-token
+  register: k3s_token
+  changed_when: false
+  become: yes
+
+- name: Save token
+  set_fact:
+    k3s_node_token: "{{ k3s_token.stdout }}"

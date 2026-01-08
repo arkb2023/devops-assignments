@@ -1,0 +1,122 @@
+---
+# Common Setup - All Nodes (Parallel)
+# Runs on jenkins_master + k3s_cluster (4 nodes)
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install prerequisites
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - htop
+      - vim
+      - net-tools
+      - iptables
+      - conntrack
+      - jq
+    state: present
+  become: yes
+
+- name: Add Docker GPG key (fixed method)
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/docker-archive-keyring.gpg
+  become: yes
+
+- name: Add Docker repository (fixed)
+  shell: |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+  args:
+    creates: /etc/apt/sources.list.d/docker.list
+  become: yes
+
+- name: Install Docker + containerd
+  apt:
+    update_cache: yes
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+  become: yes
+
+- name: Docker service enabled
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Add ubuntu to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+  become: yes
+
+- name: Disable swap
+  systemd:
+    name: swap
+    enabled: no
+    state: stopped
+  become: yes
+  ignore_errors: yes
+
+- name: Remove swapfile
+  file:
+    path: /swapfile
+    state: absent
+  become: yes
+
+- name: Load kernel modules
+  shell: |
+    modprobe br_netfilter
+    modprobe overlay
+  become: yes
+
+- name: Set sysctl params for K3s
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  loop:
+    - { name: "net.bridge.bridge-nf-call-iptables", value: "1" }
+    - { name: "net.bridge.bridge-nf-call-ip6tables", value: "1" }
+    - { name: "net.ipv4.ip_forward", value: "1" }
+  become: yes
+
+- name: Create Kubernetes directory
+  file:
+    path: /etc/kubernetes
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Set hostname for each node
+  hostname:
+    name: "{{ inventory_hostname }}"
+  become: yes
+
+- name: Update /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ item.ip }} {{ item.name }}"
+    state: present
+  loop:
+    - { ip: "10.158.148.119", name: "worker1" }
+    - { ip: "10.158.148.130", name: "worker2" }
+    - { ip: "10.158.148.234", name: "worker3" }
+    - { ip: "10.158.148.86", name: "worker4" }
+  become: yes
+
+- name: Flush handlers
+  meta: flush_handlers

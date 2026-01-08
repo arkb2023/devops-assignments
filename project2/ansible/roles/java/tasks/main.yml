@@ -1,0 +1,18 @@
+---
+- name: Install OpenJDK 17
+  apt:
+    name: openjdk-17-jdk
+    state: present
+  become: yes
+
+- name: Set JAVA_HOME
+  lineinfile:
+    path: /etc/environment
+    line: JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+  become: yes
+
+- name: Add to profile
+  lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: 'export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64'
+  become: yes

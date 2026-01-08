@@ -1,0 +1,24 @@
+---
+- name: Install K3s prereqs
+  apt:
+    name:
+      - conntrack
+      - iptables
+      - ipset
+    state: present
+  become: yes
+
+- name: Install containerd config
+  template:
+    src: containerd.toml.j2
+    dest: /etc/containerd/config.toml
+  become: yes
+  notify: restart containerd
+
+- name: Enable containerd CRI
+  lineinfile:
+    path: /etc/containerd/config.toml
+    regexp: '^\\s*SystemdCgroup'
+    line: '    SystemdCgroup = true'
+  become: yes
+  notify: restart containerd

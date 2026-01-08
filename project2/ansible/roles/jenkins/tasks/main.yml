@@ -1,0 +1,50 @@
+---
+- name: Add Jenkins GPG key
+  shell: wget -O /etc/apt/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+  args:
+    creates: /etc/apt/keyrings/jenkins-keyring.asc
+  become: yes
+
+- name: Add Jenkins LTS repo
+  shell: echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ " > /etc/apt/sources.list.d/jenkins.list
+  args:
+    creates: /etc/apt/sources.list.d/jenkins.list
+  become: yes
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: present
+  become: yes
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  become: yes
+
+- name: Start Jenkins
+  systemd:
+    name: jenkins
+    enabled: yes
+    state: started
+  become: yes
+  ignore_errors: yes
+
+- name: Ensure Jenkins running
+  systemd:
+    name: jenkins
+    enabled: yes
+    state: started
+  become: yes
+
+- name: Wait for Jenkins port
+  wait_for:
+    port: 8080
+    delay: 60
+    timeout: 600
+  run_once: true

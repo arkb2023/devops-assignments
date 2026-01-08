@@ -1,0 +1,86 @@
+---
+# Project2 Main Playbook - 5 Phase Orchestration
+# Deploys Jenkins + K3s cluster across 4 nodes
+# Usage: ansible-playbook playbooks/site.yml -i inventory/hosts.ini
+
+# ========== PHASE 1: COMMON SETUP (All Nodes) ==========
+- name: "Phase 1: Common Setup (All Nodes)"
+  hosts: all
+  gather_facts: yes
+  roles:
+    - common
+  tags: [common]
+
+# ========== PHASE 2: JENKINS MASTER (Worker1)==========
+- name: "Phase 2: Jenkins Master (Worker1)"
+  hosts: jenkins_master
+  gather_facts: yes
+  roles:
+    - java
+    - jenkins
+  tags: [jenkins]
+
+# ========== PHASE 3: K3S PREREQUISITES ==========
+- name: "Phase 3: K3s Prerequisites (Cluster Nodes)"
+  hosts: k3s_cluster
+  gather_facts: yes
+  roles:
+    - k3s_common
+  tags: [k3s-common]
+
+# ========== PHASE 4A: K3S CONTROL PLANE ==========
+- name: "Phase 4A: K3s Control Plane (Worker2)"
+  hosts: k3s_control_plane
+  gather_facts: yes
+  roles:
+    - k3s_control_plane
+  tags: [k3s-control-plane]
+
+# ========== PHASE 4B: K3S WORKERS ==========
+- name: "Phase 4B: K3s Workers (Worker3, Worker4)"
+  hosts: k3s_workers
+  gather_facts: yes
+  roles:
+    - k3s_worker
+  tags: [k3s-worker]
+
+# ========== PHASE 5: VERIFICATION ==========
+# - name: "Phase 5: Verify K3s Cluster"
+#   hosts: k3s_control_plane
+#   gather_facts: no
+#   tags: [k3s-verify]
+#   tasks:
+#     - name: Wait for all nodes ready
+#       shell: |
+#         kubectl get nodes --no-headers | grep Ready | wc -l
+#       register: node_count
+#       retries: 20
+#       delay: 10
+#       until: node_count.stdout | int == 4
+#       become: yes
+    
+#     - debug:
+#         msg: "{{ node_count.stdout }} nodes ready!"
+
+#     - name: Show cluster status
+#       shell: kubectl get nodes -o wide
+#       register: cluster_status
+#       become: yes
+
+#     - name: Show system pods
+#       shell: kubectl get pods -n kube-system
+#       register: system_pods
+#       become: yes
+
+#     - name: Display success message
+#       debug:
+#         msg: |
+#           K3S CLUSTER READY!
+#           Nodes: {{ node_count.stdout }} Ready
+#           {{ cluster_status.stdout }}
+          
+#           Access Jenkins: http://{{ hostvars['worker1']['ansible_host'] }}:8080
+          
+#           Next steps:
+#           1. kubectl apply -f kubernetes/deployment.yml
+#           2. Setup Jenkins pipeline
