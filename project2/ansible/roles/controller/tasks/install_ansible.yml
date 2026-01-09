@@ -1,0 +1,38 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+
+- name: Install Ansible and dependencies
+  apt:
+    name:
+      - ansible-core
+      - openssh-client
+      - openssh-server
+      - python3-pip
+      - git
+      - curl
+    state: present
+  become: yes
+
+- name: Verify ansible installation
+  shell: ansible --version
+  register: ansible_version
+  changed_when: false
+
+- name: Display ansible version
+  debug:
+    #msg: "{{ ansible_version.stdout_lines[0] }}"
+    # msg: "{{ ansible_version.stdout.split('\n')[0] }}"
+    var: ansible_version.stdout
+
+- name: Create project directory on controller
+  file:
+    path: /home/ubuntu/project2
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+  become: yes

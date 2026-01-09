@@ -1,0 +1,9 @@
+---
+# Controller Role Defaults
+ansible_user: ubuntu
+ansible_home: /home/ubuntu
+ssh_key_type: rsa
+ssh_key_bits: 4096
+ssh_key_path: "{{ ansible_home }}/.ssh/id_rsa"
+ssh_pubkey_path: "{{ ansible_home }}/.ssh/id_rsa.pub"
+project_home: "{{ ansible_home }}/project2"

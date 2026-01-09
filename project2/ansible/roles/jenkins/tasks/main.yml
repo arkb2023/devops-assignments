@@ -35,6 +35,11 @@
   become: yes
   ignore_errors: yes
 
+- name: Wait for startup
+  pause:
+    seconds: 30
+  when: not ansible_check_mode
+
 - name: Ensure Jenkins running
   systemd:
     name: jenkins

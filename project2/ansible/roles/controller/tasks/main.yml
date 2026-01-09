@@ -1,0 +1,18 @@
+---
+- name: "Controller: Main Task Flow"
+  debug:
+    msg: "Setting up Ansible Controller on {{ inventory_hostname }}"
+
+- name: Include install_ansible tasks
+  include_tasks: install_ansible.yml
+
+- name: Include generate_ssh_keys tasks
+  include_tasks: generate_ssh_keys.yml
+
+- name: Include distribute_pubkey tasks
+  include_tasks: distribute_pubkey.yml
+
+- name: "Controller: Setup Complete"
+  debug:
+    msg: "Ansible installed | SSH keys generated | Ready for Stage2"
+

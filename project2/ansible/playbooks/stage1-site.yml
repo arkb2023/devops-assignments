@@ -1,0 +1,11 @@
+---
+# Project2: Stage#1 Playbook
+# Deploys Ansible on Controller (worker1)
+
+# ========== Stage 1: Ansible Setup (worker1 only) ==========
+- name: "Stage-1: Ansible Setup (worker1 only)"
+  hosts: controller
+  gather_facts: yes
+  roles:
+    - controller
+  tags: [controller]

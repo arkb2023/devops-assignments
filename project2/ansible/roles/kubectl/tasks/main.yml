@@ -1,0 +1,90 @@
+---
+- name: Add Kubernetes GPG key
+  shell: |
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes.gpg
+  args:
+    creates: /etc/apt/keyrings/kubernetes.gpg
+  become: yes
+
+- name: Set GPG permissions
+  file:
+    path: /etc/apt/keyrings/kubernetes.gpg
+    mode: '0644'
+  become: yes
+
+- name: Add Kubernetes apt repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /"
+    state: present
+  become: yes
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install kubectl
+  apt:
+    name: kubectl
+    state: present
+  become: yes
+
+- name: Create .kube directory
+  file:
+    path: /home/ubuntu/.kube
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+  become: yes
+
+# - name: Copy kubeconfig from control plane
+#   fetch:
+#     src: /etc/rancher/k3s/k3s.yaml
+#     dest: ./k3s-config-{{ inventory_hostname }}.yaml
+#     flat: yes
+#   delegate_to: worker2
+#   become: yes
+
+- name: Copy kubeconfig from control plane
+  shell: |
+    scp -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/id_rsa ubuntu@worker2:/etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/config
+    sed -i 's/127.0.0.1/worker2/' /home/ubuntu/.kube/config
+    chown ubuntu:ubuntu /home/ubuntu/.kube/config
+    chmod 600 /home/ubuntu/.kube/config
+  become: yes
+
+# - name: Deploy kubeconfig to controller/worker1
+#   copy:
+#     src: ./k3s-config-worker2.yaml
+#     dest: /home/ubuntu/.kube/config
+#     owner: ubuntu
+#     group: ubuntu
+#     mode: '0600'
+#   become: yes
+
+# - name: Update k8s control plane ip address into kubeconfig
+#   shell: |
+#     sed -i 's/127.0.0.1/worker2/' /home/ubuntu/.kube/config
+#   become: yes
+
+- name: Set KUBECONFIG
+  lineinfile:
+    path: /home/ubuntu/.bashrc
+    line: 'export KUBECONFIG=/home/ubuntu/.kube/config'
+    create: yes
+  become: yes
+  become_user: ubuntu
+
+- name: Verify kubectl access
+  shell: kubectl get nodes
+  become: yes
+  become_user: ubuntu
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  register: kubectl_verify
+  changed_when: false
+
+- name: Show nodes
+  debug:
+    msg: "{{ kubectl_verify.stdout }}"

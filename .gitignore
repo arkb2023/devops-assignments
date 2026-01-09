@@ -5,6 +5,7 @@
 # Terraform state files
 *.tfstate
 *.tfstate.backup
+*.tfstate.*
 crash.log
 crash.*.log
 
@@ -38,3 +39,6 @@ terraform.rc
 
 *cache*
 *logs*
+*keys*
+*output*
+*code-workspace
