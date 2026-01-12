@@ -19,7 +19,7 @@ spec:
         image: arkb2023/website:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 80
           name: http
         resources:
           requests:
@@ -30,13 +30,13 @@ spec:
             cpu: "200m"
         livenessProbe:
           httpGet:
-            path: /
-            port: 8080
+            path: /index.html
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /
-            port: 8080
+            path: /index.html
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 5

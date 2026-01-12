@@ -1,6 +1,5 @@
 ---
-# Common Setup - All Nodes (Parallel)
-# Runs on jenkins_master + k3s_cluster (4 nodes)
+# Common Setup - All Nodes
 
 - name: Update apt cache
   apt:

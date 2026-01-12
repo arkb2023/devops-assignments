@@ -6,7 +6,7 @@
   become: yes
 
 - name: Add Jenkins LTS repo
-  shell: echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/ " > /etc/apt/sources.list.d/jenkins.list
+  shell: echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/" > /etc/apt/sources.list.d/jenkins.list
   args:
     creates: /etc/apt/sources.list.d/jenkins.list
   become: yes
@@ -53,3 +53,73 @@
     delay: 60
     timeout: 600
   run_once: true
+
+# ========================================================
+# Auto-fix Jenkins Kubeconfig Permissions
+# ========================================================
+- name: Ensure kubeconfig directory exists for Jenkins
+  file:
+    path: /home/ubuntu/.kube
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+  become: yes
+
+- name: Copy kubeconfig to Jenkins home (primary fix)
+  copy:
+    src: /home/ubuntu/.kube/config
+    dest: /var/lib/jenkins/.kube/config
+    remote_src: yes
+    owner: jenkins
+    group: jenkins
+    mode: '0600'
+  become: yes
+
+- name: Add Jenkins user to ubuntu group (backup access)
+  user:
+    name: jenkins
+    groups: ubuntu
+    append: yes
+  become: yes
+
+- name: Set kubeconfig permissions for ubuntu user
+  file:
+    path: /home/ubuntu/.kube/config
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+  become: yes
+
+- name: Create Jenkins kubeconfig symlink
+  file:
+    src: /var/lib/jenkins/.kube/config
+    dest: /var/lib/jenkins/.kubeconfig
+    state: link
+  become: yes
+
+- name: Restart Jenkins (apply group changes)
+  systemd:
+    name: jenkins
+    state: restarted
+    daemon_reload: yes
+  become: yes
+
+- name: Wait for Jenkins restart
+  wait_for:
+    port: 8080
+    delay: 10
+    timeout: 120
+  run_once: true
+
+- name: Verify Jenkins kubeconfig access
+  shell: |
+    sudo -u jenkins bash -c "KUBECONFIG=/var/lib/jenkins/.kube/config kubectl get nodes"
+  register: jenkins_kube_test
+  become: yes
+  changed_when: false
+
+- name: Show Jenkins verification result
+  debug:
+    msg: "{{ jenkins_kube_test.stdout_lines | first }}"
+  when: jenkins_kube_test.rc == 0

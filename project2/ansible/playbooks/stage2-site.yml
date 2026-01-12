@@ -11,15 +11,6 @@
     - common
   tags: [common]
 
-# ========== PHASE 2.A: JENKINS MASTER (controller/jenkins_master/Worker1)==========
-- name: "Phase 2.A: Jenkins Master(controller/jenkins_master/Worker1)"
-  hosts: jenkins_master
-  # hosts: controller
-  gather_facts: yes
-  roles:
-    - jenkins
-  tags: [jenkins]
-
 # ========== PHASE 2.B: JAVA (controller/Worker1)==========
 - name: "Phase 2.B: JAVA (controller/Worker1)"
   # hosts: jenkins_master
@@ -61,6 +52,15 @@
   roles:
     - kubectl 
   tags: [kubectl]
+
+# ========== PHASE 6: JENKINS MASTER (controller/jenkins_master/Worker1)==========
+- name: "Phase 2.A: Jenkins Master(controller/jenkins_master/Worker1)"
+  hosts: jenkins_master
+  # hosts: controller
+  gather_facts: yes
+  roles:
+    - jenkins
+  tags: [jenkins]
 
 # ========== PHASE 6: VERIFICATION ==========
 # - name: "Phase 5: Verify K3s Cluster"
