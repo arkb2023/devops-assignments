@@ -1,7 +1,6 @@
 ---
 # Project2 Main Playbook - 5 Phase Orchestration
 # Deploys Jenkins + K3s cluster across 4 nodes
-# Usage: ansible-playbook playbooks/site.yml -i inventory/hosts.ini
 
 # ========== PHASE 1: COMMON SETUP (All Nodes) ==========
 - name: "Phase 1: Common Setup (All Nodes)"
@@ -33,6 +32,7 @@
   hosts: k3s_control_plane
   gather_facts: yes
   roles:
+    - java
     - k3s_control_plane
   tags: [k3s-control-plane]
 

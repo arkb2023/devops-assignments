@@ -6,31 +6,35 @@
 # NOTE: This task requires worker nodes to already have controller's public key
 # in their authorized_keys. This is done manually from WSL2 before Stage2.
 
-- name: Show manual distribution steps
-  debug:
-    msg: |
-      ========== MANUAL BRIDGE STEPS (Execute from Local Machine) ==========
+# - name: Show manual distribution steps
+#   debug:
+#     msg: |
+#       ========== MANUAL BRIDGE STEPS (Execute from Local Machine) ==========
+#     # - { ip: "10.158.148.151", name: "worker1" }
+#     # - { ip: "10.158.148.254", name: "worker2" }
+#     # - { ip: "10.158.148.152", name: "worker3" }
+#     # - { ip: "10.158.148.56", name: "worker4" }      
+#       Step 1: Extract controller's public key
+#       ssh -i ./multipass_key ubuntu@10.158.148.151 "cat ~/.ssh/id_rsa.pub" > controller_key.pub
+#       ssh -i ./multipass_key ubuntu@10.158.148.151 "echo '$(cat controller_key.pub)' >> ~/.ssh/authorized_keys"
+
+#       Step 2: Add to each worker's authorized_keys
+#       For worker2 (10.158.148.120):
+#       ssh -i ./multipass_key ubuntu@10.158.148.254 "echo '$(cat controller_key.pub)' >> ~/.ssh/authorized_keys"
       
-      Step 1: Extract controller's public key
-      ssh -i ./multipass_key ubuntu@10.158.148.119 "cat ~/.ssh/id_rsa.pub" > controller_key.pub
+#       For worker3 (10.158.148.121):
+#       ssh -i ./multipass_key ubuntu@10.158.148.152 "echo '$(cat controller_key.pub)' >> ~/.ssh/authorized_keys"
       
-      Step 2: Add to each worker's authorized_keys
-      For worker2 (10.158.148.120):
-      ssh -i ./multipass_key ubuntu@10.158.148.120 "echo '$(cat controller_key.pub)' >> ~/.ssh/authorized_keys"
+#       For worker4 (10.158.148.122):
+#       ssh -i ./multipass_key ubuntu@10.158.148.56 "echo '$(cat controller_key.pub)' >> ~/.ssh/authorized_keys"
       
-      For worker3 (10.158.148.121):
-      ssh -i ./multipass_key ubuntu@10.158.148.121 "echo '$(cat controller_key.pub)' >> ~/.ssh/authorized_keys"
+#       Step 3: Verify passwordless SSH from controller
+#       ssh -i ./multipass_key ubuntu@10.158.148.119 "ssh -i ~/.ssh/id_rsa worker2 'whoami'"
       
-      For worker4 (10.158.148.122):
-      ssh -i ./multipass_key ubuntu@10.158.148.122 "echo '$(cat controller_key.pub)' >> ~/.ssh/authorized_keys"
+#       Step 4: Copy project2 to controller
+#       scp -r -i ./multipass_key . ubuntu@10.158.148.119:~/project2/
       
-      Step 3: Verify passwordless SSH from controller
-      ssh -i ./multipass_key ubuntu@10.158.148.119 "ssh -i ~/.ssh/id_rsa worker2 'whoami'"
-      
-      Step 4: Copy project2 to controller
-      scp -r -i ./multipass_key . ubuntu@10.158.148.119:~/project2/
-      
-      Step 5: SSH to controller and run Stage2
-      ssh -i ./multipass_key ubuntu@10.158.148.119
-      cd ~/project2/ansible
-      ansible-playbook stage2-site.yml -i inventory/stage2-hosts.ini -vv
+#       Step 5: SSH to controller and run Stage2
+#       ssh -i ./multipass_key ubuntu@10.158.148.119
+#       cd ~/project2/ansible
+#       ansible-playbook stage2-site.yml -i inventory/stage2-hosts.ini -vv

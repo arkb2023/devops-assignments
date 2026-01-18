@@ -1,16 +1,21 @@
 ---
+- name: Set Flannel interface for AWS EC2
+  set_fact:
+    flannel_iface: "ens5"
+
 - name: Get token from control plane
   shell: cat /var/lib/rancher/k3s/server/node-token
   register: k3s_token
-  delegate_to: worker2
+  delegate_to: worker3
   become: yes
   changed_when: false
 
 - name: Install k3s agent (worker)
   shell: |
     curl -sfL https://get.k3s.io | sh -s - agent \
-      --server https://worker2:6443 \
-      --token {{ k3s_token.stdout }}
+      --server https://worker3:6443 \
+      --token {{ k3s_token.stdout }} \
+      --flannel-iface={{ flannel_iface }}
   environment:
     K3S_KUBECONFIG_MODE: "0644"
   become: yes
@@ -20,3 +25,21 @@
 - name: Wait for agent startup
   pause:
     seconds: 30
+
+- name: Verify Flannel on ens5 (worker)
+  shell: |
+    sudo cat /run/flannel/subnet.env | grep FLANNEL_IFACE || echo "No subnet.env"
+  register: flannel_verify_worker
+  changed_when: false
+
+- name: Check VXLAN socket (worker)
+  shell: ss -ulnp | grep 8472
+  register: vxlan_check_worker
+  changed_when: false
+
+# - name: Check node joined cluster (from worker3 view)
+#   shell: |
+#     ssh worker3 "sudo k3s kubectl get nodes -o wide 2>/dev/null | grep {{ inventory_hostname }}"
+#   register: worker_joined
+#   delegate_to: localhost  # Or delegate_to: worker3
+#   failed_when: "'Ready' not in worker_joined.stdout"

@@ -11,3 +11,7 @@ variable "github_token_secret_arn" {
 variable "dockerhub_token_secret_arn" {
   type = string
 }
+
+# variable "github_connection_arn" {
+#   type = string
+# }

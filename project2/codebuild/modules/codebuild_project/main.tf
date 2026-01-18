@@ -59,7 +59,17 @@ resource "aws_iam_role_policy" "codebuild_inline" {
           "secretsmanager:GetSecretValue"
         ]
         Resource = var.dockerhub_token_secret_arn
-      }
+      },
+      
+      # # CodeConnections permissions
+      # {
+      #   Effect = "Allow"
+      #   Action = [
+      #     "codeconnections:UseConnection",
+      #     "codeconnections:GetConnectionToken"
+      #   ]
+      #   Resource = var.github_connection_arn
+      # }
     ]
   })
 }
@@ -69,7 +79,7 @@ resource "aws_codebuild_project" "this" {
   description = "CodeBuild project for ${var.github_repo_url}"
 
   service_role = aws_iam_role.codebuild_role.arn
-
+  depends_on     = [aws_iam_role_policy.codebuild_inline] 
   source {
     type            = "GITHUB"
     location        = var.github_repo_url
@@ -78,8 +88,12 @@ resource "aws_codebuild_project" "this" {
 
     report_build_status = true
     insecure_ssl        = false
-  }
 
+
+  }
+  
+
+  
   source_version = "main"
 
   artifacts {

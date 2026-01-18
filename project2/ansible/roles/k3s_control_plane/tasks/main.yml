@@ -1,10 +1,17 @@
 ---
+- name: Get private IP for node-ip (control-plane)
+  set_fact:
+    node_ip: "{{ ansible_default_ipv4.address }}"
+  when: inventory_hostname == "worker3"  # Matches your when conditions?
+
 - name: Install k3s server (control plane)
   shell: |
     curl -sfL https://get.k3s.io | sh -s - \
       --disable=traefik \
       --disable=local-storage \
-      --cluster-init
+      --cluster-init \
+      --flannel-iface={{ flannel_iface }} \
+      --node-ip={{ node_ip }}
   environment:
     K3S_KUBECONFIG_MODE: "0644"
   become: yes
@@ -13,7 +20,33 @@
 
 - name: Wait for k3s startup
   pause:
-    seconds: 30
+    seconds: 60
+
+- name: Verify Flannel on ens5 (control-plane)
+  shell: |
+    sudo cat /run/flannel/subnet.env | grep FLANNEL_IFACE || echo "No subnet.env"
+  register: flannel_verify_cp
+  changed_when: false
+
+- name: Check VXLAN socket (control-plane)
+  shell: ss -ulnp | grep 8472
+  register: vxlan_check_cp
+  changed_when: false
+
+# - name: Nodes Ready (control-plane)
+#   shell: k3s kubectl get nodes -o wide 2>/dev/null || echo "kubectl fail"
+#   register: nodes_check
+#   failed_when: >
+#     "'kubectl fail' in nodes_check.stdout or 
+#      'worker3.*Ready' not in nodes_check.stdout"
+
+# - name: Nodes Ready (control-plane)
+#   shell: k3s kubectl get nodes -o wide 2>/dev/null || echo "kubectl fail"
+#   register: nodes_check
+#   failed_when: >
+#     "'kubectl fail' in nodes_check.stdout or 
+#      'worker3' not in nodes_check.stdout or 
+#      'Ready' not in nodes_check.stdout"
 
 - name: Get token for workers
   shell: cat /var/lib/rancher/k3s/server/node-token
@@ -25,6 +58,16 @@
   set_fact:
     k3s_node_token: "{{ k3s_token.stdout }}"
 
+- name: Create .kube directory (control plane)
+  file:
+    path: /home/ubuntu/.kube
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+  become: yes
+  when: inventory_hostname == "worker3"
+
 - name: Copy kubeconfig to ubuntu home (control plane)
   copy:
     src: /etc/rancher/k3s/k3s.yaml
@@ -34,4 +77,4 @@
     group: ubuntu
     mode: '0600'
   become: yes
-  when: inventory_hostname == "worker2"
+  when: inventory_hostname == "worker3"

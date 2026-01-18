@@ -17,6 +17,12 @@ terraform {
 }
 
 provider "aws" {
-  #region = "ap-south-1"
   region = var.aws_region
+  default_tags {
+    tags = {
+      Project     = "project2"
+      Environment = "development"
+      ManagedBy   = "Terraform"
+    }
+  }  
 }

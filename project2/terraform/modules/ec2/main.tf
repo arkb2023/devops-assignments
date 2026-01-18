@@ -40,7 +40,9 @@ resource "local_file" "private_key_pem" {
 resource "aws_security_group" "ec2_sg" {
   name_prefix = "${var.instance_name}-sg"
   vpc_id      = var.vpc_id
-  description = "Security group for ${var.instance_name}"
+  description = "Security group for ${var.instance_name} - K3s + Jenkins"
+
+  # ====== INGRESS RULES ======
 
   # SSH from specific IP
   ingress {
@@ -51,13 +53,13 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = [var.my_ip]
   }
   
-  # HTTP from anywhere
+  # HTTP - for Jenkins web UI and app
   ingress {
     description = "HTTP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.my_ip]
   }
   
   # HTTPS
@@ -66,10 +68,10 @@ resource "aws_security_group" "ec2_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.my_ip]
   }
 
-  # Kubernetes API
+  # Kubernetes API - VPC CIDR ONLY
   ingress {
     description = "Kubernetes API"
     from_port   = 6443
@@ -78,7 +80,7 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["10.0.0.0/16"]  # VPC CIDR only
   }
 
-  # Kubelet API
+  # Kubelet API - VPC CIDR ONLY
   ingress {
     description = "Kubelet API"
     from_port   = 10250
@@ -87,22 +89,124 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["10.0.0.0/16"]
   }
 
-  # Internal traffic
   ingress {
-    description = "Pod-to-Pod"
+    description = "Pod-to-Pod (UDP)"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+ # Flannel VXLAN - VPC CIDR ONLY (inter-pod networking)
+  ingress {
+    description = "Flannel VXLAN"
+    from_port   = 8472
+    to_port     = 8472
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+  
+  # Flannel WireGuard - VPC CIDR ONLY
+  ingress {
+    description = "Flannel WireGuard IPv4"
+    from_port   = 51820
+    to_port     = 51820
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  # etcd - VPC CIDR ONLY (K3s control plane)
+  ingress {
+    description = "etcd"
+    from_port   = 2379
+    to_port     = 2380
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  # NodePort range - Keep accessible but controlled
+  ingress {
+    description = "Kubernetes NodePort"
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
+  }
+
+  # Pod-to-Pod traffic within cluster - VPC CIDR ONLY (TCP)
+  ingress {
+    description = "Pod-to-Pod (TCP)"
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+  
+  # Jenkins
+  ingress {
+    description = "Jenkins"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
+  }
+
+  # ====== EGRESS RULES ======
+
+  # Allow SSH to other nodes (inter-node)  
+  egress {
+    description = "SSH to other nodes"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
+  # Allow DNS queries (required for pod DNS resolution)
+  egress {
+    description = "DNS"
+    from_port   = 53
+    to_port     = 53
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow HTTPS outbound for package downloads and external APIs
+  egress {
+    description = "HTTPS outbound"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Allow HTTP outbound (Docker Hub registry, etc.)
+  egress {
+    description = "HTTP outbound"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Inter-cluster communication (TCP)
+  egress {
+    description = "Inter-node TCP"
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
     cidr_blocks = ["10.0.0.0/16"]
   }
 
+  # Inter-cluster communication (UDP)
   egress {
+    description = "Inter-node UDP"
     from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    to_port     = 65535
+    protocol    = "udp"
+    cidr_blocks = ["10.0.0.0/16"]
   }
-  
+
   tags = {
     Name = "${var.instance_name}-sg"
   }
@@ -113,13 +217,14 @@ resource "aws_instance" "this" {
   instance_type          = var.instance_type
   key_name               = aws_key_pair.this_key.key_name  # SSH Eenabled
   
-  vpc_security_group_ids = concat([aws_security_group.ec2_sg.id], var.vpc_security_group_ids)
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   
   subnet_id = var.subnet_id
   
   tags = {
     Name = var.instance_name
   }
+  depends_on = [aws_security_group.ec2_sg]
 }
 
 resource "aws_eip" "this" {

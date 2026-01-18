@@ -48,8 +48,8 @@
 
 - name: Copy kubeconfig from control plane
   shell: |
-    scp -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/id_rsa ubuntu@worker2:/etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/config
-    sed -i 's/127.0.0.1/worker2/' /home/ubuntu/.kube/config
+    scp -o StrictHostKeyChecking=no -i /home/ubuntu/.ssh/id_rsa ubuntu@worker3:/etc/rancher/k3s/k3s.yaml /home/ubuntu/.kube/config
+    sed -i 's/127.0.0.1/worker3/' /home/ubuntu/.kube/config
     chown ubuntu:ubuntu /home/ubuntu/.kube/config
     chmod 600 /home/ubuntu/.kube/config
   become: yes

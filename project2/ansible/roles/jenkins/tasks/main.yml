@@ -66,6 +66,15 @@
     mode: '0755'
   become: yes
 
+- name: Ensure kubeconfig directory exists for Jenkins
+  file:
+    path: /var/lib/jenkins/.kube
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+  become: yes
+
 - name: Copy kubeconfig to Jenkins home (primary fix)
   copy:
     src: /home/ubuntu/.kube/config

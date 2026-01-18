@@ -61,13 +61,13 @@
     append: yes
   become: yes
 
-- name: Disable swap
-  systemd:
-    name: swap
-    enabled: no
-    state: stopped
-  become: yes
-  ignore_errors: yes
+# - name: Disable swap
+#   systemd:
+#     name: swap
+#     enabled: no
+#     state: stopped
+#   become: yes
+#   ignore_errors: yes
 
 - name: Remove swapfile
   file:
@@ -127,11 +127,10 @@
     line: "{{ item.ip }} {{ item.name }}"
     state: present
   loop:
-    - { ip: "10.158.148.119", name: "worker1" }
-    - { ip: "10.158.148.130", name: "worker2" }
-    - { ip: "10.158.148.234", name: "worker3" }
-    - { ip: "10.158.148.86", name: "worker4" }
+    - { ip: "10.0.2.31", name: "worker1" }
+    - { ip: "10.0.3.184", name: "worker2" }
+    - { ip: "10.0.1.217", name: "worker3" }
+    - { ip: "10.0.2.211", name: "worker4"}
   become: yes
-
 - name: Flush handlers
   meta: flush_handlers

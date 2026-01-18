@@ -23,3 +23,4 @@ variable "github_token_secret_arn" {
 variable "dockerhub_token_secret_arn" {
   type = string
 }
+

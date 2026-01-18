@@ -30,14 +30,14 @@ variable "subnet_id" {
   default     = ""
 }
 
-variable "vpc_security_group_ids" {
-  description = "Additional VPC security groups"
-  type        = list(string)
-  default     = []
-}
-
 variable "create_eip" {
   description = "Attach Elastic IP"
   type        = bool
   default     = false
+}
+
+variable "vpc_security_group_ids" {
+  description = "List of security group IDs (overrides default)"
+  type        = list(string)
+  default     = []
 }

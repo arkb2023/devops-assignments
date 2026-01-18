@@ -20,4 +20,5 @@ module "website_codebuild" {
   aws_region           = var.aws_region
   github_token_secret_arn = var.github_token_secret_arn
   dockerhub_token_secret_arn = var.dockerhub_token_secret_arn
+  #github_connection_arn = var.github_connection_arn
 }

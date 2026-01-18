@@ -22,3 +22,7 @@
     line: '    SystemdCgroup = true'
   become: yes
   notify: restart containerd
+
+- name: Set Flannel interface for AWS EC2 (ubuntu)
+  set_fact:
+    flannel_iface: "ens5"
