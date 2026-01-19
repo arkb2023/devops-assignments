@@ -1,5 +1,3 @@
-========== 18/Jan/2026: Work in Progress ==========
-
 ## Capstone Project - II:
 
 ### **Scenario**  
@@ -138,7 +136,7 @@ Zero manual intervention post-setup.
 ## 3. Architecture
 The architecture diagram illustrates the end-to-end CI/CD pipeline deployed in AWS `ap-south-1`, showing both foundational infrastructure and operational workflows.
 
-![Architecture Diagram](./images/main.drawio.png)
+![Architecture Diagram](./images/arch-diag.png)
 
 **AWS Cloud Resources (ap-south-1):**  
 - **Region & Availability Zones:** Deployed across `ap-south-1a` `ap-south-1b`  and `ap-south-1c` for high availability
@@ -315,7 +313,35 @@ Declarative Kubernetes manifests provisioning **website application** with `2 re
 
 ## 5. Foundation (Infrastructure & Configuration)
 
-Check local machine ip https://checkip.amazonaws.com; set in tfvars
+**Prerequisites:**  
+Before deploying the infrastructure and CI/CD pipeline, ensure the following prerequisites are configured on local machine:
+
+- **Required Environment Variables:** Create a `.env.local.sh` file in project root with the following variables:
+  ```bash
+  # AWS Configuration
+  export AWS_REGION=ap-south-1
+  export ACCOUNT_ID=<AccountID>
+
+  # GitHub Integration
+  export GITHUB_PAT="ghp_AAAAAAAAAAAA"
+  export GITHUB_CONNECTION_ARN="arn:aws:codeconnections:$AWS_REGION:$ACCOUNT_ID:connection/<connection-id>"
+  export GITHUB_SECRET="codebuild/github/website"
+
+  # Docker Hub Integration
+  export DOCKERHUB_USERNAME=<docker-hub-username>
+  export DOCKERHUB_PAT="dckr_pat_DDDDDDDDDDD"
+  export DOCKERHUB_SECRET="codebuild/dockerhub/credentials"
+  ```
+- **Terraform Configuration:** Create a `terraform/terraform.tfvars` file with the following variables:
+  ```hcl
+  # AWS Region Configuration (same as env file!)
+  aws_region        = "ap-south-1"
+  availability_zones = ["ap-south-1a", "ap-south-1b", "ap-south-1c"]
+
+  # Local Machine IP/CIDR for admin SSH Access
+  # Find your public IP: curl https://checkip.amazonaws.com
+  my_ip = "1.1.1.0/28"
+  ```
 
 ### 5.1. AWS VPC, EC2 & Security Groups Infrastructure with Terrafrom IaC:    
   - Setup AWS EC2 worker instances  
@@ -335,36 +361,36 @@ Check local machine ip https://checkip.amazonaws.com; set in tfvars
     terraform output
     ```
     
-    **Terraform Output:** Provisions vpc-id, 4 worker EC2 instances with public IP addresses, and generates SSH keypairs
+    - Terraform Output: Provisions vpc-id, 4 worker EC2 instances with public IP addresses, and generates SSH keypairs
 
     ![caption](./images/dep-2/terraform/03-terraform-output.png)
 
-    **AWS Console:** Provisioned `VPC` resources - `subnets` `route table` `internet gateway`
+    - Provisioned `VPC` resources - `subnets` `route table` `internet gateway`
 
     ![caption](./images/dep-2/vpc/01-resource-map.png)
 
-    **AWS Console:** 4 EC2 worker instances up and running
+    - 4 EC2 worker instances up and running
  
     ![caption](./images/dep-2/ec2/01-4-ec2-instances.png)
 
-    **AWS Console:** Provisioned Security groups for workers    
+    - Provisioned Security groups for workers    
 
     ![caption](./images/dep-2/ec2/02-4-security-groups.png)
   
-    **AWS Console:** Inbound Allow rules  
-    - Allow internal kubernetes cluster inbound traffic (pod-to-pod, kubelet, Flannel, API, etc2) in VPC subnet (10.0.0.0/16) only
-    - Allow external inbound traffic for admin management 
-      - ssh to workers instances
-      - Access to jenkins
-    - Allow external inbound DockerHub Webhook traffic
+    - Inbound Allow rules  
+      - Allow internal kubernetes cluster inbound traffic (pod-to-pod, kubelet, Flannel, API, etc2) in VPC subnet (10.0.0.0/16) only
+      - Allow external inbound traffic for admin management 
+        - ssh to workers instances
+        - Access to jenkins
+      - Allow external inbound DockerHub Webhook traffic
     
-    ![caption](./images/dep-2/ec2/03-ingress-rules.png)
+      ![caption](./images/dep-2/ec2/03-ingress-rules.png)
 
-    **AWS Console:** Outbound Allow rules  
-    - Allow internal kubernetes cluster outbound traffic in VPC subnet (10.0.0.0/16) only
-    - Allow external SSH, HTTPS, HTTP and DNS outbound traffic
+    - Outbound Allow rules  
+      - Allow internal kubernetes cluster outbound traffic in VPC subnet (10.0.0.0/16) only
+      - Allow external SSH, HTTPS, HTTP and DNS outbound traffic
 
-    ![caption](./images/dep-2/ec2/04-outbound-rules.png)
+      ![caption](./images/dep-2/ec2/04-outbound-rules.png)
 
 ### 5.2. Ansible based Configuration Management
   - Setup Passwordless SSH:
@@ -479,7 +505,43 @@ Check local machine ip https://checkip.amazonaws.com; set in tfvars
 
     ![caption](./images/dep-2/jenkins/00-jenkins-service-running.png)  
 
-### 5.3. Jenkins configuration and pipeline setup
+### 5.3. Initial Kubernetes deployment (bootstrap)
+On a freshly created K3s cluster, the initial website Deployment and Service must be created manually from the controller (Worker1) before the Jenkins pipeline can manage rollouts. The Jenkinsfile assumes that the Deployment `website-dep` already exists.  
+
+- From local machine, copy Kubernetes manifests to the controller (Worker1):
+  ```bash
+  # From local machine
+  cd project2
+
+  # Archive Kubernetes manifests
+  tar -czf kubernetes.tar.gz ./kubernetes/
+
+  # Copy to Worker1 (controller)
+  scp -i ./terraform/ssh-keys/terraform_bridge_key kubernetes.tar.gz ubuntu@$WORKER1_PUBLIC_IP:/home/ubuntu/project2/
+  ```
+- From controller (Worker1), apply the manifests to the K3s cluster:
+  ```bash
+  # On Worker1 (controller)
+  cd ~/project2
+  tar -xzf kubernetes.tar.gz
+  cd kubernetes/
+
+  # Create initial Deployment and Service
+  kubectl apply -f website-deployment.yaml
+  kubectl apply -f website-service.yaml
+  ```
+- Verify the application resources:
+  ```bash
+  kubectl get all
+  ```
+  ![caption](./images/dep-2/kubernetes/01-kubectl-get-all.png)
+
+  > **Outcome:**  
+  > Deployment `website-dep` exists with the configured number of replicas  
+  > Service `website-svc` exists and exposes `NodePort 30008`  
+  > Subsequent Jenkins pipeline runs can safely call `kubectl set image deployment/website-dep` ... and `kubectl rollout restart deployment/website-dep` to manage updates  
+
+### 5.4. Jenkins configuration and pipeline setup
 - Access Jenkins and setup admin account 
 
   ![caption](./images/dep-2/jenkins/01-jenkins-accessible-unlocked-running.png)
@@ -506,14 +568,15 @@ Check local machine ip https://checkip.amazonaws.com; set in tfvars
   *Specify `main` branch and use [jenkinsfile](https://github.com/arkb2023/website/blob/main/jenkinsfile) script from the repository*  
   ![caption](./images/dep-2/jenkins/33-02-configure-pipeline.png)
 
-### 5.4. Docker Hub Webhook registration   
+
+### 5.5. Docker Hub Webhook registration   
 Register generic webhook URL in Docker Hub repository settings:  
 http://<WORKER1_PUBLIC_IP>:8080/generic-webhook-trigger/invoke?token=dockerhub123
 
   ![caption](./images/dep-2/docker-hub/00-docker-hub-webhook-setup.png)  
   > **Outcome:** Docker Hub triggers webhook to jenkins on new image upload  
 
-### 5.5. AWS CodeBuild infrastructure with Terraform IaC and AWS CLI    
+### 5.6. AWS CodeBuild infrastructure with Terraform IaC and AWS CLI    
 
   - Setup code connection with github `codebuild-github` in AWS developer tools
     ![caption](./images/dep-2/codebuild/21-codebuild-github-connection-basic.png)
@@ -521,6 +584,7 @@ http://<WORKER1_PUBLIC_IP>:8080/generic-webhook-trigger/invoke?token=dockerhub12
   - Execute script: [setup-codebuild.sh](./codebuild/setup-codebuild.sh)
     ```bash
     cd codebuild
+    source ../.env.local.sh
     ./setup-codebuild.sh
     ```
 
@@ -536,18 +600,32 @@ http://<WORKER1_PUBLIC_IP>:8080/generic-webhook-trigger/invoke?token=dockerhub12
         - Access to Github and DockerHub secret tokens in AWS Secrets Manager
       - Enables Cloudwatch logging  
 
-    **AWS Console:** Codebuild project  
+  - Codebuild project  
     ![caption](./images/dep-2/codebuild/01-codebuild-website-codebuild-project.png)  
   
-    **AWS Console:** Codebuild project details  
-    
+  - Codebuild project details  
     ![caption](./images/dep-2/codebuild/05-codebuild-website-build-project-source.png)  
     > Github source repository: [arkb2023/website](https://github.com/arkb2023/website.git)  
     > Webhook events set Build on `PUSH` to `main` branch  
+    > Webhook filter set to `(HEAD_REF = ^refs/heads/main$)` to accept builds only for the `main` branch. 
 
-**************<<TBD>> Add IAM & Secrets Manager screenshots *******************
+  - IAM role `website-build-service-role` for Codebuild project  
+    ![caption](./images/dep-2/iam/01-iam-role.png)
 
-### 5.6. GitHub Webhook registration   
+  - Inline policy attached to Codebuild role  
+    ![caption](./images/dep-2/iam/02-iam-role-inline-policy.png)
+    > Access to Secrets Manager (for GitHub PAT and Docker Hub PAT) and Cloudwatch logs  
+
+  - IAM role trust relationship for Codebuild service  
+    ![caption](./images/dep-2/iam/03-iam-role-trust-relationship.png)
+
+  - CodeBuild base policy  
+    ![caption](./images/dep-2/iam/04-iam-codebuild-base-policy.png)
+
+  - CodeBuild Secrets Manager access policy  
+    ![caption](./images/dep-2/iam/05-iam-codebuild-secretsmanager-policy.png)
+    
+### 5.7. GitHub Webhook registration   
 
 - Register AWS connector App in Github  
   ![caption](./images/dep-2/github/09-github-aws-connector-app.png)  
@@ -633,9 +711,13 @@ http://<WORKER1_PUBLIC_IP>:8080/generic-webhook-trigger/invoke?token=dockerhub12
 
 - Jenkins rollout application deployment in K3s cluster with latest image  
   ![caption](./images/dep-2/jenkins/54-website-cicd-build22-stage-deploy-image-to-k3s.png)  
+  > `arkb2023/website:latest` image deployed to K3s cluster via kubectl set image command  
+  > rollout restart initiated to apply new image to pods  
+  > Confirmation message: deployment "website-dep" successfully rolled out  
 
 - Jenkins verify deployment stage shows new applicaiton pods running    
   ![caption](./images/dep-2/jenkins/55-website-cicd-build22-stage-verify-dep.png)
+  > kubectl get pods confirms 2 new pods running with updated image
 
 - Jenkins post action stage shows deployment was successfull  
   ![caption](./images/dep-2/jenkins/56-website-cicd-build22-stage-post-action.png)  
@@ -645,12 +727,32 @@ http://<WORKER1_PUBLIC_IP>:8080/generic-webhook-trigger/invoke?token=dockerhub12
   ![caption](./images/dep-2/jenkins/57-website-cicd-build22-console-output-02.png)
   ![caption](./images/dep-2/jenkins/57-website-cicd-build22-console-output-03.png)
 
-*******************<<TBD>> additionally add kubctl command logs****************************
-
 - Access the live application through a browser at  K3s control plane on NodePort endpoint:
 `http://13.201.94.5:30008`    
   ![caption](./images/dep-2/App/01-app-live.png)  
   > The timestamp displayed on the page corresponds to the index.html modification in commit `2067c39`, confirming successful end-to-end deployment.
+
+**Test A Validation Checklist:**
+
+| Checkpoint | Expected Behavior | Test Result | Status |
+|------------|-------------------|-------------|--------|
+| GitHub webhook | Triggers for main branch push | Commit `2067c39` | **PASS** |
+| CodeBuild | Builds Docker image from source | SHA256 `c4560f42060e` generated | **PASS** |
+| Docker Hub | Pushes image with dual tags | Tags `:latest` + `:2067c39` | **PASS** |
+| Jenkins trigger | Receives webhook notification | Build #22 initiated | **PASS** |
+| Release gate check | Evaluates current date | Day match logic works (tested on day 15) | **PASS** |
+| K3s deployment | Triggers rollout | Rollout restart successful | **PASS** |
+| Application live | Website accessible at NodePort | http://worker3-ip:30008 responding | **PASS** |
+| Build completion | Jenkins pipeline succeeds | All stages completed | **PASS** |
+
+**Test A Outcome:**
+
+**PASS** - Release gate logic correctly evaluates date-based conditions and permits deployment when date matches (tested with day 15; production uses day 25)  
+**PASS** - Full end-to-end CI/CD pipeline executes successfully from Git push through K3s deployment  
+**PASS** - Jenkins pipeline completes with SUCCESS status  
+**PASS** - Production K3s cluster updated with new Docker image; website live with latest application code  
+
+---
 
 ### 6.2 Test B: On non-25th date Main Push leads to Build Only *(No production deployment)*
 
@@ -661,11 +763,6 @@ the full CI/CD pipeline (Git → GitHub Webhook → CodeBuild → Docker Hub →
 but the production K3s deployment gets skipped. The Jenkins pipeline completes with 
 SUCCESS status and an informational message.
 
-**Quick Summary:**
-| Date | Branch | Expected Result |
-|------|--------|-----------------|
-| Jan 18th (non-25th) | `main` | Build success, deployment **skipped** |
-
 **Test Execution Flow:**
 
 - Git push to `main` branch on non-25th date
@@ -674,60 +771,61 @@ SUCCESS status and an informational message.
   git commit -m "Non-25th pipeline test - build only"
   git push origin main
   ```
-  ![caption](./images/dep-3/github/01-git-push-commit-b781fb6.png)
-  > Commit ID: `b781fb6`
+  ![caption](./images/dep-3/01-git-push-commit-b781fb6.png)
+  > Note: Commit ID: `b781fb6` for corelation in upcoming pipeline stages
 
 - GitHub webhook triggers CodeBuild
-  ![caption](./images/dep-3/github/02-github-webhook-commit-b781fb6.png)
+  ![caption](./images/dep-3/02-github-webhook-commit-b781fb6.png)
   > Webhook for Commit ID `b781fb6` successfully delivered to CodeBuild
 
 - CodeBuild build phases complete successfully  
-  ![caption](./images/dep-3/github/03-codebuild-commit-b781fb6.png)
+  ![caption](./images/dep-3/03-codebuild-commit-b781fb6.png)
   > Build triggered by GitHub webhook for Commit ID `b781fb6`
 
 - CodeBuild logs show Docker image built and pushed to Docker Hub
-  ![caption](./images/dep-3/github/04-codebuild-commit-b781fb6-sha256-8f040e9b8135.png)
+  ![caption](./images/dep-3/04-codebuild-commit-b781fb6-sha256-8f040e9b8135.png)
   > Docker image built: SHA256 `8f040e9b8135` from Commit ID `b781fb6`
 
 - Docker Hub repository shows new image with dual tags
-  ![caption](./images/dep-3/github/05-dockerhub-commit-b781fb6-sha256-8f040e9b8135.png)
+  ![caption](./images/dep-3/05-dockerhub-commit-b781fb6-sha256-8f040e9b8135.png)
   > Image with sha256: `8f040e9b8135` pushed with tags `latest` and `b781fb6`
 
 - Docker Hub triggers webhook to Jenkins
-  ![caption](./images/dep-3/github/06-dockerhub-webhook.png)
+  ![caption](./images/dep-3/06-dockerhub-webhook.png)
+  > Docker Hub Webhook status: SUCCESS, Code: 200
 
 - Jenkins `Build #14` triggered by Docker Hub webhook
-  ![caption](./images/dep-3/github/06-jenkins-build-14-for-commit-b781fb6.png)
+  ![caption](./images/dep-3/06-jenkins-build-14-for-commit-b781fb6.png)
   > `Build #14` corresponding to Commit ID `b781fb6`
 
 - Jenkins Build #14: Release Gate Check - Deployment SKIPPED (18th ≠ 25th)
-  ![caption](./images/dep-3/github/07-jenkins-build-14-stages-show-deployment-skipped-release-gate-stage.png)
+  ![caption](./images/dep-3/07-jenkins-build-14-stages-show-deployment-skipped-release-gate-stage.png)
   > Release gate detects non-25th date → Deploy/Verify stages skipped
 
 - Jenkins: Build #14 - detects latest Docker image sha256: `8f040e9b8135` in Docker Hub
-  ![caption](./images/dep-3/github/07-jenkins-build-14-stages-show-deployment-skipped.png)
+  ![caption](./images/dep-3/07-jenkins-build-14-stages-show-deployment-skipped.png)
 
 - Jenkins Build #14: Post Action confirms deployment skipped
-  ![caption](./images/dep-3/github/07-jenkins-build-14-stages-show-deployment-skipped-post-action-stage.png)
+  ![caption](./images/dep-3/07-jenkins-build-14-stages-show-deployment-skipped-post-action-stage.png)
   > Informational message: "Build completed successfully. Deployment skipped"
 
 **Test B Validation Checklist:**
 
 | Checkpoint | Expected | Actual | Result |
 |------------|----------|--------|--------|
-| GitHub webhook | Triggers for main | ✓ Commit `b781fb6` | **PASS** |
-| CodeBuild | Builds Docker image | ✓ SHA256 `8f040e9b8135` | **PASS** |
-| Docker Hub | Image pushed | ✓ `:latest` + `:b781fb6` | **PASS** |
-| Jenkins trigger | Webhook received | ✓ Build #14 | **PASS** |
-| Release gate | Date check fails | ✓ 18th ≠ 25th | **PASS** |
-| Deploy stage | Skipped | ✓ Grayed out | **PASS** |
-| Build status | SUCCESS | ✓ "Deployment skipped" | **PASS** |
+| GitHub webhook | Triggers for main | Commit `b781fb6` | **PASS** |
+| CodeBuild | Builds Docker image | SHA256 `8f040e9b8135` | **PASS** |
+| Docker Hub | Image pushed | `:latest` + `:b781fb6` | **PASS** |
+| Jenkins trigger | Webhook received | Build #14 | **PASS** |
+| Release gate | Date check fails | 18th ≠ 25th | **PASS** |
+| Deploy stage | Skipped | Grayed out | **PASS** |
+| Build status | SUCCESS | Deployment skipped | **PASS** |
 
 **Test B Outcome:**
 
 **PASS** - Release gate correctly prevents production deployment on non-25th dates  
 **PASS** - Full build pipeline executes successfully  
-**PASS** - Jenkins completes with SUCCESS status (no false failures)  
+**PASS** - Jenkins completes with Success status
 **PASS** - Previous production deployment remains unchanged
 
 ---
@@ -741,12 +839,6 @@ This test validates that commits to feature branches (non-`main` branches) do no
 trigger AWS CodeBuild builds. The CodeBuild project uses webhook filters 
 `(HEAD_REF = ^refs/heads/main$)` to accept builds only for the `main` branch. 
 GitHub sends webhooks for all pushes, but CodeBuild drops feature branch events.
-
-**Quick Summary:**
-| Branch | Webhook Sent | CodeBuild Build | Result |
-|--------|-------------|---------------|--------|
-| `feature/test-branch` | ✓ | ✗ (filtered) | **PASS** |
-
 
 **Test Execution Flow:**
 
@@ -766,8 +858,7 @@ GitHub sends webhooks for all pushes, but CodeBuild drops feature branch events.
 
 - CodeBuild webhook filter rejects feature branch: "No build triggered"
   ![caption](./images/dep-4/02-github-webhook-no-build-response-from-codebuild.png)
-  > Response: {"response":"No build triggered for specified payload","statusCode":200}
-HEAD_REF filter (^refs/heads/main$) drops feature branch events
+  > CodeBuild responds with 200 OK but does not start a build
 
 - CodeBuild build history shows NO new builds
   ![caption](./images/dep-4/03-codebuild-no-new-build.png)
@@ -780,11 +871,11 @@ HEAD_REF filter (^refs/heads/main$) drops feature branch events
 
 | Checkpoint | Expected | Actual | Result |
 |------------|----------|--------|--------|
-| Feature branch push | Webhook sent | ✓ Delivered to CodeBuild | **PASS** |
-| CodeBuild webhook filter | Reject non-main | ✓ `"No build triggered"` | **PASS** |
-| CodeBuild builds | None created | ✓ Build history unchanged | **PASS** |
-| Docker Hub | No new image | ✓ No image pushed | **PASS** |
-| Jenkins | No webhook | ✓ No builds triggered | **PASS** |
+| Feature branch push | Webhook sent | Delivered to CodeBuild | **PASS** |
+| CodeBuild webhook filter | Reject non-main | No build triggered | **PASS** |
+| CodeBuild builds | None created | Build history unchanged | **PASS** |
+| Docker Hub | No new image | No image pushed | **PASS** |
+| Jenkins | No webhook | No builds triggered | **PASS** |
 
 **Test C Outcome:**
 
@@ -808,100 +899,4 @@ HEAD_REF filter (^refs/heads/main$) drops feature branch events
 - Feature branch isolation preventing accidental CI/CD triggers
 - Comprehensive pipeline validation across three test scenarios
 
-
-## Appendix A: Troubleshooting & Known Issues
-
-### A.1 Common Issues & Resolutions
-
-**Issue 1: Ansible SSH Key Permission Denied**
-
-*Symptom:* Stage2 fails with "Permission denied (publickey)"
-
-*Root Cause:* Keypair permissions too open (644 instead of 600)
-
-*Resolution:*
-```bash
-chmod 600 ~/.ssh/authorized_keys
-chmod 700 ~/.ssh
-
-Issue 2: K3s Control Plane Initialization Timeout
-
-Symptom: K3s server on Worker3 fails to initialize within timeout period
-
-Root Cause: Insufficient resources or network connectivity issues
-
-Resolution:
-
-Verify Worker3 has minimum 2GB RAM and 2 CPU cores
-
-Check security group allows port 6443 (K3s API server)
-
-Review CloudInit logs: cat /var/log/cloud-init-output.log
-
-Issue 3: Jenkins Cannot Access kubeconfig
-
-Symptom: Jenkins deployment stage fails with "kubeconfig not found"
-
-Root Cause: kubeconfig not properly synced from control plane to Worker1
-
-Resolution:
-
-bash
-# On Worker3 (control plane)
-sudo cat /etc/rancher/k3s/k3s.yaml | sudo tee /tmp/k3s.yaml
-
-# On Worker1 (Jenkins)
-scp ubuntu@worker3:/tmp/k3s.yaml ~/.kube/config
-kubectl config set-cluster default --server=https://worker3-ip:6443
-Issue 4: Docker Hub Webhook Not Triggering Jenkins
-
-Symptom: Docker Hub pushes successful, but Jenkins build not triggered
-
-Root Cause: Webhook token mismatch or Jenkins endpoint unreachable
-
-Resolution:
-
-Verify webhook URL in Docker Hub matches Jenkins endpoint exactly
-
-Test connectivity: curl -v http://worker1-ip:8080/generic-webhook-trigger/invoke?token=dockerhub123
-
-Check Jenkins firewall rules and security group inbound rules
-
-Issue 5: CodeBuild Build Fails - "docker: not found"
-
-Symptom: CodeBuild POST_BUILD phase fails during Docker push
-
-Root Cause: CodeBuild environment does not have Docker daemon enabled
-
-Resolution:
-
-Ensure CodeBuild project environment has "Privileged mode" enabled
-
-Image should be aws/codebuild/standard:7.0 (which includes Docker)
-
-## Appendix C: Configuration Reference & File Locations
-
-### C.1 Key Configuration Files
-
-| Component | File | Purpose |
-|-----------|------|---------|
-| **Terraform** | `terraform/terraform.tfvars` | AWS region, instance types, AZ configuration |
-| **Ansible Stage1** | `ansible/ansible.stage1.cfg` | Local execution config, privilege escalation |
-| **Ansible Stage2** | `ansible/ansible.stage2.cfg` | SSH execution config, inventory settings |
-| **Ansible Inventory** | `ansible/inventory/stage2-hosts.ini` | Worker node IP addresses and variables |
-| **Jenkins** | Jenkins UI → Configure | Pipeline definition, webhook token, build triggers |
-| **CodeBuild** | `codebuild/terraform.tfvars` | GitHub repo URL, buildspec path, source branch |
-| **K3s** | `/etc/rancher/k3s/k3s.yaml` | Cluster API configuration (kubeconfig) |
-| **Application** | `arkb2023/website` repo | Dockerfile, buildspec.yml, Jenkinsfile |
-
-### C.2 Environment Variables
-
-**Local Machine Setup:**
-```bash
-export WORKER1="<worker1-public-ip>"
-export WORKER2="<worker2-public-ip>"
-export WORKER3="<worker3-public-ip>"
-export WORKER4="<worker4-public-ip>"
-export AWS_REGION="ap-south-1"
-export GITHUB_PAT="<your-github-token>"
-export DOCKERHUB_PAT="<your-dockerhub-token>"
+---
