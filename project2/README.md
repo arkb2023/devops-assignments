@@ -570,8 +570,8 @@ On a freshly created K3s cluster, the initial website Deployment and Service mus
 
 
 ### 5.5. Docker Hub Webhook registration   
-Register generic webhook URL in Docker Hub repository settings:  
-http://<WORKER1_PUBLIC_IP>:8080/generic-webhook-trigger/invoke?token=dockerhub123
+Register generic webhook URL in Docker Hub repository settings    
+> http://<WORKER1_PUBLIC_IP>:8080/generic-webhook-trigger/invoke?token=dockerhub123  
 
   ![caption](./images/dep-2/docker-hub/00-docker-hub-webhook-setup.png)  
   > **Outcome:** Docker Hub triggers webhook to jenkins on new image upload  
