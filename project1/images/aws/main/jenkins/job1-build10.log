@@ -1,0 +1,86 @@
+Started by upstream project "Abode-Website-Pipeline" build number 10
+originally caused by:
+ Docker Hub Push
+Obtained pipelines/build-pipeline.groovy from git https://github.com/arkb2023/abode-website.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/Job1-Build
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/Job1-Build/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/arkb2023/abode-website.git # timeout=10
+Fetching upstream changes from https://github.com/arkb2023/abode-website.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.34.1'
+ > git fetch --tags --force --progress -- https://github.com/arkb2023/abode-website.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 4c76461424d5c31b3f18a9b9a613e1a09f240a00 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 4c76461424d5c31b3f18a9b9a613e1a09f240a00 # timeout=10
+Commit message: "Test 05"
+ > git rev-list --no-walk 1b4fbea441876bf1c1ad824446e6069432a22e9f # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Image Validation)
+[Pipeline] script
+[Pipeline] {
+[Pipeline] sh
++ chmod +x scripts/smoke.sh
++ ./scripts/smoke.sh arkb2023/abode-website:main-v1.0-5-4c76461
+Pulling image from Docker Hub...
+   Image: arkb2023/abode-website:main-v1.0-5-4c76461
+main-v1.0-5-4c76461: Pulling from arkb2023/abode-website
+f12c5a50c8a5: Pulling fs layer
+72a57113910b: Pulling fs layer
+f12c5a50c8a5: Download complete
+72a57113910b: Download complete
+72a57113910b: Pull complete
+f12c5a50c8a5: Pull complete
+Digest: sha256:f2957c4522fa293c9187fba436a5d4966c18b0354dbad2aa7df7414fd4332fc3
+Status: Downloaded newer image for arkb2023/abode-website:main-v1.0-5-4c76461
+docker.io/arkb2023/abode-website:main-v1.0-5-4c76461
+Image pulled successfully
+Validating image: arkb2023/abode-website:main-v1.0-5-4c76461
+Testing on dynamic port...
+Dynamic port: 51269
+24e62da15050edff7bd1699599a1f8886cf1e3472690d5b377d99762a9ada21f
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100   193  100   193    0     0   126k      0 --:--:-- --:--:-- --:--:--  188k
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0   193    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+smoke-test
+smoke-test
+Smoke test PASSED
+[Pipeline] }
+[Pipeline] // script
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] archiveArtifacts
+Archiving artifacts
+[Pipeline] echo
+Smoke test passed
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

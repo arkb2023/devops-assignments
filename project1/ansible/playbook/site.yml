@@ -1,0 +1,47 @@
+---
+# 1. Pre-contact all hosts (populates hostvars)
+- name: Pre-contact All Hosts
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Ensure hostvars populated
+      debug:
+        msg: "Host contacted: {{ inventory_hostname }}"
+
+# 2. Setup phases
+- name: Setup Common Configuration
+  hosts: all
+  gather_facts: no
+  become: yes
+  roles:
+    - common
+
+- name: Setup Jenkins
+  hosts: jenkins
+  gather_facts: yes
+  become: yes
+  roles:
+    - jenkins-setup
+  vars:
+    jenkins_key_url: "https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key"
+
+- name: Setup Production VM
+  hosts: prod
+  gather_facts: yes
+  become: yes
+  roles:
+    - prod-setup
+
+- name: Setup Test VM
+  hosts: test
+  gather_facts: no
+  become: yes
+  roles:
+    - test-setup
+
+# - name: Demo Dynamic Variables
+#   hosts: test
+#   gather_facts: no
+#   become: yes
+#   roles:
+#     - demo-dynamic-vars

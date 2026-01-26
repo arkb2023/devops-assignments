@@ -1,0 +1,130 @@
+---
+# Docker first
+- name: Install Docker prerequisites
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+
+- name: Create keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Add Docker GPG key
+  shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  args:
+    creates: /etc/apt/keyrings/docker.gpg
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu jammy stable"
+    state: present
+    filename: docker
+
+- name: Install Docker CE
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+
+- name: Start Docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+# Jenkins
+- name: Ensure Java for Jenkins
+  apt:
+    name:
+      - fontconfig
+      - openjdk-21-jre
+    state: present
+
+- name: Verify Jenkins key exists
+  stat:
+    path: /etc/apt/keyrings/jenkins-keyring.asc
+  register: jenkins_key
+
+- name: Download Jenkins key if missing
+  get_url:
+    url: "{{ jenkins_key_url }}"
+    dest: /etc/apt/keyrings/jenkins-keyring.asc
+    mode: '0644'
+  when: not jenkins_key.stat.exists
+
+# THIS WAS MISSING - Add Jenkins repository
+- name: Add Jenkins repository
+  apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+    state: present
+    filename: jenkins
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: present
+
+# Docker socket access
+- name: Add ubuntu to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: Add jenkins to docker group
+  user:
+    name: jenkins
+    groups: docker
+    append: yes
+
+# Services
+- name: Start and enable Jenkins
+  systemd:
+    name: jenkins
+    state: started
+    enabled: yes
+
+- name: Open Jenkins port 8080 (iptables fallback)
+  shell: |
+    iptables -C INPUT -p tcp --dport 8080 -j ACCEPT 2>/dev/null || \
+    iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+  become: yes
+  ignore_errors: yes
+
+# Initial password
+- name: Get Jenkins initial password
+  slurp:
+    src: /var/lib/jenkins/secrets/initialAdminPassword
+  register: jenkins_password
+  retries: 10
+  delay: 10
+  until: jenkins_password is succeeded
+
+- name: Display access info
+  debug:
+    msg:
+      - "Jenkins: http://{{ ansible_default_ipv4.address }}:8080"
+      - "Password: {{ (jenkins_password.content | b64decode | trim) }}"
+      - "Docker: docker ps  # Test jenkins user"
+
+- name: Wait Jenkins ready
+  wait_for:
+    port: 8080
+    delay: 10
+    timeout: 120

@@ -1,0 +1,202 @@
+Started by upstream project "Abode-Website-Pipeline" build number 11
+originally caused by:
+ Docker Hub Push
+Obtained pipelines/test-pipeline.groovy from git https://github.com/arkb2023/abode-website.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/Job2-Test
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/Job2-Test/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/arkb2023/abode-website.git # timeout=10
+Fetching upstream changes from https://github.com/arkb2023/abode-website.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.34.1'
+ > git fetch --tags --force --progress -- https://github.com/arkb2023/abode-website.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 4c76461424d5c31b3f18a9b9a613e1a09f240a00 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 4c76461424d5c31b3f18a9b9a613e1a09f240a00 # timeout=10
+Commit message: "Test 05"
+ > git rev-list --no-walk 4c76461424d5c31b3f18a9b9a613e1a09f240a00 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Test Deployment)
+[Pipeline] sshagent
+[ssh-agent] Using credentials ubuntu (SSH Key for Prod/Test)
+$ ssh-agent
+SSH_AUTH_SOCK=/tmp/ssh-XXXXXXa6cqyj/agent.8098
+SSH_AGENT_PID=8104
+Running ssh-add (command line suppressed)
+Identity added: /var/lib/jenkins/workspace/Job2-Test@tmp/private_key_6327672630960274069.key (ubuntu@ip-10-0-2-248)
+[ssh-agent] Started.
+[Pipeline] {
+[Pipeline] sh
++ chmod +x scripts/test.sh
++ ./scripts/test.sh ubuntu 10.0.2.19 arkb2023/abode-website:develop-v1.0-6-4134157 8081
+════════════════════════════════════════════════
+Running Tests on Test server
+════════════════════════════════════════════════
+Target: ubuntu@10.0.2.19
+Image: arkb2023/abode-website:develop-v1.0-6-4134157
+Healthcheck attempts: 8081
+Sleep interval: 3s
+
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.8.0-1044-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Fri Jan 23 23:12:22 IST 2026
+
+  System load:  0.0               Processes:             106
+  Usage of /:   40.6% of 7.57GB   Users logged in:       1
+  Memory usage: 34%               IPv4 address for ens5: 10.0.2.19
+  Swap usage:   0%
+
+ * Ubuntu Pro delivers the most comprehensive open source security and
+   compliance features.
+
+   https://ubuntu.com/aws/pro
+
+Expanded Security Maintenance for Applications is not enabled.
+
+0 updates can be applied immediately.
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+New release '24.04.3 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+Total reclaimed space: 0B
+════════════════════════════════════════════════
+Testing Docker Image on 10.0.2.19 server
+════════════════════════════════════════════════
+Image: arkb2023/abode-website:develop-v1.0-6-4134157
+Healthcheck attempts: 8081
+Sleep interval: 3s
+
+Cleaning up previous test containers...
+Cleanup done
+
+Pulling image from Docker Hub...
+   Image: arkb2023/abode-website:develop-v1.0-6-4134157
+develop-v1.0-6-4134157: Pulling from arkb2023/abode-website
+a48c500ed24e: Already exists
+1e1de00ff7e1: Already exists
+0330ca45a200: Already exists
+471db38bcfbf: Already exists
+0b4aba487617: Already exists
+c2e32ec79cfd: Already exists
+a18d6ba75273: Already exists
+4c2cc0ff3ce8: Already exists
+566fae5a9f8d: Pulling fs layer
+0460f5d0f790: Pulling fs layer
+0460f5d0f790: Download complete
+566fae5a9f8d: Download complete
+566fae5a9f8d: Pull complete
+0460f5d0f790: Pull complete
+Digest: sha256:d80a785f4fcb88521cbe83dd72beef296f43d1d130cf39443cf35dc1583af0d4
+Status: Downloaded newer image for arkb2023/abode-website:develop-v1.0-6-4134157
+docker.io/arkb2023/abode-website:develop-v1.0-6-4134157
+Image pulled successfully
+
+Verifying files in image...
+   Listing /var/www/html/:
+total 64
+drwxr-xr-x 1 www-data www-data 4096 Jan 23 23:11 .
+drwxr-xr-x 1 root     root     4096 May 31  2018 ..
+drwxr-xr-x 1 www-data www-data 4096 Jan 23 23:11 .git
+-rwxr-xr-x 1 www-data www-data  430 Jan 23 23:11 Dockerfile
+-rwxr-xr-x 1 www-data www-data 7604 Jan 23 23:11 Jenkinsfile
+-rwxr-xr-x 1 www-data www-data 6799 Jan 23 23:11 Jenkinsfile-dh
+-rwxr-xr-x 1 www-data www-data 2130 Jan 23 23:11 buildspec.yml
+-rwxr-xr-x 1 www-data www-data  641 Jan 23 23:11 config.properties
+drwxr-xr-x 1 www-data www-data 4096 Jan 23 23:11 images
+-rwxr-xr-x 1 www-data www-data  193 Jan 23 23:11 index.html
+-rwxr-xr-x 1 www-data www-data  847 Feb  2  2019 index.php
+drwxr-xr-x 1 www-data www-data 4096 Jan 23 23:11 pipelines
+drwxr-xr-x 1 www-data www-data 4096 Jan 23 23:11 scripts
+-rwxr-xr-x 1 www-data www-data   39 Jan 23 23:11 test.txt
+
+   Checking index.html...
+index.html found
+
+   Checking images/github3.jpg...
+images/github3.jpg found
+
+Starting test container...
+Test container started: ee9adf57151f
+
+
+Waiting for service to start (initial 5s buffer)...
+   Starting healthcheck probes...
+
+Running healthcheck (max 8081 attempts, 3s interval)...
+Healthcheck PASSED on attempt 1
+
+Running final smoke test...
+   Fetching http://localhost:9081/...
+HTTP 200 OK
+
+Response preview:
+<html>
+<head>
+<title> Intellipaat </title>
+</head>
+<body style = "background-image:url('images/github3.jpg'); background-size: 100%">
+<h2 ALIGN=CENTER>Hello world!</h2>
+</body>
+</html>
+
+Cleaning up test container...
+test-web
+test-web
+Total reclaimed space: 0B
+Cleanup done
+
+════════════════════════════════════════════════
+Test stage completed successfully
+Test logs saved to /var/lib/test-artifacts/
+Total time: 25s
+════════════════════════════════════════════════
+
+════════════════════════════════════════════════
+Test deployment successful
+Image: arkb2023/abode-website:develop-v1.0-6-4134157
+Endpoint: http://10.0.2.19
+════════════════════════════════════════════════
+[Pipeline] }
+$ ssh-agent -k
+unset SSH_AUTH_SOCK;
+unset SSH_AGENT_PID;
+echo Agent pid 8104 killed;
+[ssh-agent] Stopped.
+[Pipeline] // sshagent
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Tests passed on 10.0.2.19:8081
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

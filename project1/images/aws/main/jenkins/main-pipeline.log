@@ -1,0 +1,24 @@
+Docker Hub Push
+Running as SYSTEM
+[EnvInject] - Loading node environment variables.
+Building in workspace /var/lib/jenkins/workspace/Abode-Website-Pipeline
+    >> Job status: [Job1-Build] the 'build only if scm changes' feature is disabled.
+Starting build job Job1-Build (build-phase) at 21:56:35.
+Counting Job1-Build. enabledIndex=1
+Job1-Build: Quiet period groovy=[], index=1 -> quietPeriodGroovy=null
+Error calculating quiet time for index 1 and quietPeriodGroovy []: Cannot invoke "java.lang.Integer.intValue()" because "quietPeriod" is null; returning 0
+quiet period for Job1-Build is 0 seconds.Finished Build : #10 of Job : Job1-Build (build-phase) with status : SUCCESS at 21:57:00
+    >> Job status: [Job2-Test] the 'build only if scm changes' feature is disabled.
+Starting build job Job2-Test (Test Phase) at 21:57:00.
+Counting Job2-Test. enabledIndex=1
+Job2-Test: Quiet period groovy=[], index=1 -> quietPeriodGroovy=null
+Error calculating quiet time for index 1 and quietPeriodGroovy []: Cannot invoke "java.lang.Integer.intValue()" because "quietPeriod" is null; returning 0
+quiet period for Job2-Test is 0 seconds.Finished Build : #5 of Job : Job2-Test (Test Phase) with status : SUCCESS at 21:57:30
+    >> Job status: [Job3-Prod] the 'build only if scm changes' feature is disabled.
+Triggering Job3-Prod (Deploy Phase). Condition was evaluated to true.
+Starting build job Job3-Prod (Deploy Phase) at 21:57:30.
+Counting Job3-Prod. enabledIndex=1
+Job3-Prod: Quiet period groovy=[], index=1 -> quietPeriodGroovy=null
+Error calculating quiet time for index 1 and quietPeriodGroovy []: Cannot invoke "java.lang.Integer.intValue()" because "quietPeriod" is null; returning 0
+quiet period for Job3-Prod is 0 seconds.Finished Build : #2 of Job : Job3-Prod (Deploy Phase) with status : SUCCESS at 21:57:50
+Finished: SUCCESS

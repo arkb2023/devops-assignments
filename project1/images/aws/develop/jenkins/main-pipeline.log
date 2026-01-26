@@ -1,0 +1,19 @@
+Docker Hub Push
+Running as SYSTEM
+[EnvInject] - Loading node environment variables.
+Building in workspace /var/lib/jenkins/workspace/Abode-Website-Pipeline
+    >> Job status: [Job1-Build] the 'build only if scm changes' feature is disabled.
+Starting build job Job1-Build (build-phase) at 23:11:55.
+Counting Job1-Build. enabledIndex=1
+Job1-Build: Quiet period groovy=[], index=1 -> quietPeriodGroovy=null
+Error calculating quiet time for index 1 and quietPeriodGroovy []: Cannot invoke "java.lang.Integer.intValue()" because "quietPeriod" is null; returning 0
+quiet period for Job1-Build is 0 seconds.Finished Build : #11 of Job : Job1-Build (build-phase) with status : SUCCESS at 23:12:20
+    >> Job status: [Job2-Test] the 'build only if scm changes' feature is disabled.
+Starting build job Job2-Test (Test Phase) at 23:12:20.
+Counting Job2-Test. enabledIndex=1
+Job2-Test: Quiet period groovy=[], index=1 -> quietPeriodGroovy=null
+Error calculating quiet time for index 1 and quietPeriodGroovy []: Cannot invoke "java.lang.Integer.intValue()" because "quietPeriod" is null; returning 0
+quiet period for Job2-Test is 0 seconds.Finished Build : #6 of Job : Job2-Test (Test Phase) with status : SUCCESS at 23:12:53
+    >> Job status: [Job3-Prod] the 'build only if scm changes' feature is disabled.
+Skipping Job3-Prod (Deploy Phase). Condition was evaluated to false.
+Finished: SUCCESS

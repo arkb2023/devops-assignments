@@ -1,0 +1,44 @@
+# From control node
+# Common setup for all nodes (control, jenkins, test, prod)
+# Minimal setup without requiring extra collections
+
+- name: Update system packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+
+- name: Install essential tools
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - jq
+      - net-tools
+      - htop
+      - vim
+      - python3-pip
+      - python3-dev
+    state: present
+
+- name: Install Python pip packages
+  pip:
+    name:
+      - pyyaml
+      - jinja2
+    state: present
+
+- name: Set timezone to IST
+  shell: timedatectl set-timezone Asia/Kolkata
+  ignore_errors: yes
+
+- name: Configure sudoers for ubuntu user
+  lineinfile:
+    path: /etc/sudoers.d/ubuntu
+    line: 'ubuntu ALL=(ALL) NOPASSWD:ALL'
+    create: yes
+    mode: '0440'
+
+- name: Validate common setup
+  debug:
+    msg: "Common setup completed on {{ inventory_hostname }}"

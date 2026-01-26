@@ -1,0 +1,52 @@
+---
+# Setup control node with Ansible
+- name: Install Ansible core
+  apt:
+    name:
+      - ansible
+      - ansible-core
+    state: present
+
+- name: Install Python dependencies for Ansible
+  pip:
+    name:
+      - paramiko
+      - jinja2
+      - pyyaml
+    state: present
+
+# - name: Create ansible directory structure
+#   file:
+#     path: "{{ item }}"
+#     state: directory
+#     mode: '0755'
+#   loop:
+#     - /home/ubuntu/ansible
+#     - /home/ubuntu/ansible/playbooks
+#     - /home/ubuntu/ansible/roles
+#     - /home/ubuntu/ansible/inventory
+
+# - name: Copy ansible configuration from git
+#   shell: |
+#     cd /home/ubuntu
+#     git clone https://github.com/arkb2023/project1.git || true
+#     cp -r project1/ansible/* /home/ubuntu/ansible/ || true
+#     chown -R ubuntu:ubuntu /home/ubuntu/ansible
+
+# - name: Create inventory for managed nodes
+#   template:
+#     src: managed.ini.j2
+#     dest: /home/ubuntu/ansible/inventory/managed.ini
+#     owner: ubuntu
+#     group: ubuntu
+
+# - name: Validate connectivity to all managed nodes
+#   command: >
+#     ansible all -i /home/ubuntu/ansible/inventory/managed.ini 
+#     -m ping -u ubuntu
+#   register: connectivity_check
+#   failed_when: false
+
+# - name: Display connectivity results
+#   debug:
+#     var: connectivity_check.stdout_lines

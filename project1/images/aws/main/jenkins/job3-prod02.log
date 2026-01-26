@@ -1,0 +1,157 @@
+Started by upstream project "Abode-Website-Pipeline" build number 10
+originally caused by:
+ Docker Hub Push
+Obtained pipelines/deploy-pipeline.groovy from git https://github.com/arkb2023/abode-website.git
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /var/lib/jenkins/workspace/Job3-Prod
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/Job3-Prod/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/arkb2023/abode-website.git # timeout=10
+Fetching upstream changes from https://github.com/arkb2023/abode-website.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.34.1'
+ > git fetch --tags --force --progress -- https://github.com/arkb2023/abode-website.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision 4c76461424d5c31b3f18a9b9a613e1a09f240a00 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f 4c76461424d5c31b3f18a9b9a613e1a09f240a00 # timeout=10
+Commit message: "Test 05"
+ > git rev-list --no-walk 15fd5e18dccc648551aea5c98f84a6bc17e2794d # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Production Deploy)
+[Pipeline] sshagent
+[ssh-agent] Using credentials ubuntu (SSH Key for Prod/Test)
+$ ssh-agent
+SSH_AUTH_SOCK=/tmp/ssh-XXXXXXeXUzyP/agent.7245
+SSH_AGENT_PID=7248
+Running ssh-add (command line suppressed)
+Identity added: /var/lib/jenkins/workspace/Job3-Prod@tmp/private_key_2070613842303949230.key (ubuntu@ip-10-0-2-248)
+[ssh-agent] Started.
+[Pipeline] {
+[Pipeline] sh
++ chmod +x scripts/deploy.sh
++ ./scripts/deploy.sh ubuntu 10.0.1.136 arkb2023/abode-website:main-v1.0-5-4c76461 80
+════════════════════════════════════════════════
+Deploying to Production
+════════════════════════════════════════════════
+Target: ubuntu@10.0.1.136
+Image: arkb2023/abode-website:main-v1.0-5-4c76461
+
+Connecting to prod server...
+
+Pseudo-terminal will not be allocated because stdin is not a terminal.
+Welcome to Ubuntu 22.04.5 LTS (GNU/Linux 6.8.0-1044-aws x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/pro
+
+ System information as of Fri Jan 23 21:57:32 IST 2026
+
+  System load:  0.0               Processes:             115
+  Usage of /:   42.1% of 7.57GB   Users logged in:       0
+  Memory usage: 33%               IPv4 address for ens5: 10.0.1.136
+  Swap usage:   0%
+
+
+Expanded Security Maintenance for Applications is not enabled.
+
+0 updates can be applied immediately.
+
+1 additional security update can be applied with ESM Apps.
+Learn more about enabling ESM Apps service at https://ubuntu.com/esm
+
+New release '24.04.3 LTS' available.
+Run 'do-release-upgrade' to upgrade to it.
+
+
+════════════════════════════════════════════════
+Remote Deployment Started
+════════════════════════════════════════════════
+
+Pulling image from Docker Hub...
+   Image: arkb2023/abode-website:main-v1.0-5-4c76461
+main-v1.0-5-4c76461: Pulling from arkb2023/abode-website
+a48c500ed24e: Already exists
+1e1de00ff7e1: Already exists
+0330ca45a200: Already exists
+471db38bcfbf: Already exists
+0b4aba487617: Already exists
+c2e32ec79cfd: Already exists
+a18d6ba75273: Already exists
+4c2cc0ff3ce8: Already exists
+72a57113910b: Pulling fs layer
+f12c5a50c8a5: Pulling fs layer
+72a57113910b: Download complete
+72a57113910b: Pull complete
+f12c5a50c8a5: Verifying Checksum
+f12c5a50c8a5: Download complete
+f12c5a50c8a5: Pull complete
+Digest: sha256:f2957c4522fa293c9187fba436a5d4966c18b0354dbad2aa7df7414fd4332fc3
+Status: Downloaded newer image for arkb2023/abode-website:main-v1.0-5-4c76461
+docker.io/arkb2023/abode-website:main-v1.0-5-4c76461
+Image pulled successfully
+
+Stopping old container (if exists)...
+   Container stopped
+
+Removing old container (if exists)...
+   Container removed
+
+Starting new container...
+Container started: 7d67e9618ecd4b87f3a769fcf1f3f0c4ec1ac60c95c3139490fab0e79c27e16f
+
+Verifying deployment...
+Container is running
+
+Container details:
+CONTAINER ID   IMAGE                                        COMMAND                  CREATED         STATUS         PORTS                                 NAMES
+7d67e9618ecd   arkb2023/abode-website:main-v1.0-5-4c76461   "/bin/bash -c 'pkill…"   2 seconds ago   Up 2 seconds   0.0.0.0:80->80/tcp, [::]:80->80/tcp   webapp
+
+════════════════════════════════════════════════
+Deployment completed successfully
+Service URL: http://10.0.1.136
+════════════════════════════════════════════════
+
+════════════════════════════════════════════════
+Production deployment successful
+Image: arkb2023/abode-website:main-v1.0-5-4c76461
+Endpoint: http://10.0.1.136
+════════════════════════════════════════════════
+[Pipeline] }
+$ ssh-agent -k
+unset SSH_AUTH_SOCK;
+unset SSH_AGENT_PID;
+echo Agent pid 7248 killed;
+[ssh-agent] Stopped.
+[Pipeline] // sshagent
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Deployed to http://10.0.1.136:80
+[Pipeline] publishHTML
+[htmlpublisher] Archiving HTML reports...
+[htmlpublisher] Archiving at BUILD level /var/lib/jenkins/workspace/Job3-Prod to Deployment_20Status
+[htmlpublisher] Copying recursive using current thread
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

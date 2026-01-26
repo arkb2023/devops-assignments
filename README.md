@@ -55,6 +55,6 @@ Welcome! This repository contains multiple DevOps assignments. Each assignment r
 5. [Deploy NGINX with ClusterIP service and configure Ingress for HTTP routing](./m7-kubernetes/a05/README.md)
 
 ### Capstone Projects
-1. WIP
+1. [Abode Website GitOps CI/CD Pipeline](./project1/README.md)
 2. [**End-to-End CI/CD:** GitHub → AWS CodeBuild → Docker Hub → Jenkins -> Kubernetes](./project2/README.md)
 ---

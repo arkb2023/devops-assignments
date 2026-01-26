@@ -1,0 +1,44 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install Docker
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+    state: present
+
+- name: Start Docker
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add ubuntu to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: Install test tools
+  apt:
+    name:
+      - curl
+      - jq
+      - netcat
+    state: present
+
+- name: Create test directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: ubuntu
+    mode: '0755'
+  loop:
+    - /var/lib/test-artifacts
+    - /var/log/test-runner
+
+- name: Reboot for docker group
+  reboot:

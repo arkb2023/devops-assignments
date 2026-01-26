@@ -1,0 +1,248 @@
+[Container] 2026/01/23 17:41:20.245162 Running on CodeBuild On-demand
+[Container] 2026/01/23 17:41:20.245181 Waiting for agent ping
+[Container] 2026/01/23 17:41:20.546866 Waiting for DOWNLOAD_SOURCE
+[Container] 2026/01/23 17:41:24.605362 Phase is DOWNLOAD_SOURCE
+[Container] 2026/01/23 17:41:24.607329 CODEBUILD_SRC_DIR=/codebuild/output/src2080114219/src/github.com/***/abode-website
+[Container] 2026/01/23 17:41:24.607922 YAML location is /codebuild/output/src2080114219/src/github.com/***/abode-website/buildspec.yml
+[Container] 2026/01/23 17:41:24.610333 Setting HTTP client timeout to higher timeout for Github and GitHub Enterprise sources
+[Container] 2026/01/23 17:41:24.610454 Processing environment variables
+[Container] 2026/01/23 17:41:24.613997 Setting HTTP client timeout to higher timeout for Github and GitHub Enterprise sources
+[Container] 2026/01/23 17:41:24.677621 Setting HTTP client timeout to higher timeout for Github and GitHub Enterprise sources
+[Container] 2026/01/23 17:41:24.964387 No runtime version selected in buildspec.
+[Container] 2026/01/23 17:41:24.987545 Moving to directory /codebuild/output/src2080114219/src/github.com/***/abode-website
+[Container] 2026/01/23 17:41:24.987571 Cache is not defined in the buildspec
+[Container] 2026/01/23 17:41:25.098466 Skip cache due to: no paths specified to be cached
+[Container] 2026/01/23 17:41:25.098789 Registering with agent
+[Container] 2026/01/23 17:41:25.204809 Phases found in YAML: 3
+[Container] 2026/01/23 17:41:25.204828  PRE_BUILD: 5 commands
+[Container] 2026/01/23 17:41:25.204833  BUILD: 13 commands
+[Container] 2026/01/23 17:41:25.204837  POST_BUILD: 17 commands
+[Container] 2026/01/23 17:41:25.205234 Phase complete: DOWNLOAD_SOURCE State: SUCCEEDED
+[Container] 2026/01/23 17:41:25.205248 Phase context status code:  Message: 
+[Container] 2026/01/23 17:41:25.888723 Entering phase INSTALL
+[Container] 2026/01/23 17:41:26.002146 Phase complete: INSTALL State: SUCCEEDED
+[Container] 2026/01/23 17:41:26.002170 Phase context status code:  Message: 
+[Container] 2026/01/23 17:41:26.036538 Entering phase PRE_BUILD
+[Container] 2026/01/23 17:41:26.149293 Running command echo ""
+
+
+[Container] 2026/01/23 17:41:26.155619 Running command echo ""
+
+
+[Container] 2026/01/23 17:41:26.161262 Running command echo "+++++++++++++++++PRE_BUILD++++++++++++++++++++++++++++++++"
++++++++++++++++++PRE_BUILD++++++++++++++++++++++++++++++++
+
+[Container] 2026/01/23 17:41:26.166969 Running command echo "Logging into Docker Hub..."
+Logging into Docker Hub...
+
+[Container] 2026/01/23 17:41:26.172605 Running command echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credential-stores
+
+Login Succeeded
+
+[Container] 2026/01/23 17:41:27.935923 Phase complete: PRE_BUILD State: SUCCEEDED
+[Container] 2026/01/23 17:41:27.935942 Phase context status code:  Message: 
+[Container] 2026/01/23 17:41:27.978545 Entering phase BUILD
+[Container] 2026/01/23 17:41:27.979522 Running command echo ""
+
+
+[Container] 2026/01/23 17:41:27.985400 Running command echo ""
+
+
+[Container] 2026/01/23 17:41:27.990971 Running command echo "+++++++++++++++++BUILD++++++++++++++++++++++++++++++++"
++++++++++++++++++BUILD++++++++++++++++++++++++++++++++
+
+[Container] 2026/01/23 17:41:27.996566 Running command echo "CODEBUILD_WEBHOOK_HEAD_REF:" "$CODEBUILD_WEBHOOK_HEAD_REF"
+CODEBUILD_WEBHOOK_HEAD_REF: refs/heads/develop
+
+[Container] 2026/01/23 17:41:28.002109 Running command BRANCH=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | sed 's|refs/heads/||')
+
+[Container] 2026/01/23 17:41:28.035888 Running command echo "BRANCH:" "$BRANCH"
+BRANCH: develop
+
+[Container] 2026/01/23 17:41:28.041774 Running command COMMIT_SHA=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+
+[Container] 2026/01/23 17:41:28.049250 Running command echo "COMMIT_SHA:" "$COMMIT_SHA"
+COMMIT_SHA: 4134157
+
+[Container] 2026/01/23 17:41:28.054825 Running command BUILD_NUM=${CODEBUILD_BUILD_NUMBER}
+
+[Container] 2026/01/23 17:41:28.060529 Running command echo "BUILD_NUM:" "$BUILD_NUM"
+BUILD_NUM: 6
+
+[Container] 2026/01/23 17:41:28.066043 Running command IMAGE_TAG="${BRANCH}-v1.0-${BUILD_NUM}-${COMMIT_SHA}"
+
+[Container] 2026/01/23 17:41:28.071709 Running command echo "Building:" "***/abode-website:${IMAGE_TAG}"
+Building: ***/abode-website:develop-v1.0-6-4134157
+
+[Container] 2026/01/23 17:41:28.077327 Running command docker build -t ***/abode-website:${IMAGE_TAG} .
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 469B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/hshar/webapp:latest
+#2 ...
+
+#3 [auth] hshar/webapp:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/hshar/webapp:latest
+#2 DONE 2.0s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 282.82kB 0.0s done
+#5 DONE 0.0s
+
+#6 [1/3] FROM docker.io/hshar/webapp:latest@sha256:3c7cbcab1a26c01410dcc9cbc57252b50d9ed2f31a2dc24e3f066c61b88e839b
+#6 resolve docker.io/hshar/webapp:latest@sha256:3c7cbcab1a26c01410dcc9cbc57252b50d9ed2f31a2dc24e3f066c61b88e839b 0.0s done
+#6 sha256:0cbc1f535ed893def74f0373dd45d3b1e583c7405d6d46061deecbffaa0ec8bf 4.22kB / 4.22kB done
+#6 sha256:a48c500ed24e62926cb079df35f964c57d8bb08159b1d29c6a3b0a58dc365dc1 0B / 30.96MB 0.2s
+#6 sha256:0330ca45a200e1fcef05ae97f434366d262a1c50b3dc053e7928b58dd37211dd 0B / 412B 0.2s
+#6 sha256:3c7cbcab1a26c01410dcc9cbc57252b50d9ed2f31a2dc24e3f066c61b88e839b 1.99kB / 1.99kB done
+#6 sha256:1e1de00ff7e1fea0858b6a4b5ca208eeca970607ea9a6eb5fc972494e7a0cdde 0B / 841B 0.2s
+#6 sha256:a48c500ed24e62926cb079df35f964c57d8bb08159b1d29c6a3b0a58dc365dc1 30.96MB / 30.96MB 0.4s done
+#6 sha256:1e1de00ff7e1fea0858b6a4b5ca208eeca970607ea9a6eb5fc972494e7a0cdde 841B / 841B 0.4s done
+#6 sha256:471db38bcfbf0f5bac78012b9d458dfd37309d5cbb99d4e95310321a60a0cfdf 0B / 849B 0.5s
+#6 sha256:0b4aba487617ca27519745ae722b8ea1917474c495b91b3c4887728a3f2ee7db 0B / 162B 0.5s
+#6 extracting sha256:a48c500ed24e62926cb079df35f964c57d8bb08159b1d29c6a3b0a58dc365dc1
+#6 sha256:0330ca45a200e1fcef05ae97f434366d262a1c50b3dc053e7928b58dd37211dd 412B / 412B 0.6s done
+#6 sha256:471db38bcfbf0f5bac78012b9d458dfd37309d5cbb99d4e95310321a60a0cfdf 849B / 849B 0.6s done
+#6 sha256:a18d6ba75273e292f3591ecf0d60b74682c729cf2f3c22db5f4771b99b469544 0B / 1.22kB 0.7s
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 0B / 90.99MB 0.7s
+#6 sha256:0b4aba487617ca27519745ae722b8ea1917474c495b91b3c4887728a3f2ee7db 162B / 162B 0.7s done
+#6 sha256:4c2cc0ff3ce897034cd3a7d0d6ba6344c5691b551f413b610a5299992b9c3d4f 0B / 2.15kB 0.8s
+#6 sha256:a18d6ba75273e292f3591ecf0d60b74682c729cf2f3c22db5f4771b99b469544 1.22kB / 1.22kB 0.9s done
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 7.72MB / 90.99MB 0.9s
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 22.02MB / 90.99MB 1.0s
+#6 sha256:4c2cc0ff3ce897034cd3a7d0d6ba6344c5691b551f413b610a5299992b9c3d4f 2.15kB / 2.15kB 1.0s done
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 32.51MB / 90.99MB 1.1s
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 45.09MB / 90.99MB 1.2s
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 54.53MB / 90.99MB 1.3s
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 60.82MB / 90.99MB 1.4s
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 66.06MB / 90.99MB 1.5s
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 71.30MB / 90.99MB 1.6s
+#6 extracting sha256:a48c500ed24e62926cb079df35f964c57d8bb08159b1d29c6a3b0a58dc365dc1 1.3s done
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 90.99MB / 90.99MB 1.8s
+#6 extracting sha256:1e1de00ff7e1fea0858b6a4b5ca208eeca970607ea9a6eb5fc972494e7a0cdde
+#6 sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 90.99MB / 90.99MB 1.9s done
+#6 extracting sha256:1e1de00ff7e1fea0858b6a4b5ca208eeca970607ea9a6eb5fc972494e7a0cdde done
+#6 extracting sha256:0330ca45a200e1fcef05ae97f434366d262a1c50b3dc053e7928b58dd37211dd done
+#6 extracting sha256:471db38bcfbf0f5bac78012b9d458dfd37309d5cbb99d4e95310321a60a0cfdf
+#6 extracting sha256:471db38bcfbf0f5bac78012b9d458dfd37309d5cbb99d4e95310321a60a0cfdf done
+#6 extracting sha256:0b4aba487617ca27519745ae722b8ea1917474c495b91b3c4887728a3f2ee7db done
+#6 extracting sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074
+#6 extracting sha256:c2e32ec79cfd8c75ba772667d13c9ec9b9085465eb66f96774575a88c5a86074 3.1s done
+#6 extracting sha256:a18d6ba75273e292f3591ecf0d60b74682c729cf2f3c22db5f4771b99b469544
+#6 extracting sha256:a18d6ba75273e292f3591ecf0d60b74682c729cf2f3c22db5f4771b99b469544 done
+#6 extracting sha256:4c2cc0ff3ce897034cd3a7d0d6ba6344c5691b551f413b610a5299992b9c3d4f done
+#6 DONE 5.5s
+
+#7 [2/3] COPY . /var/www/html/
+#7 DONE 0.3s
+
+#8 [3/3] RUN chown -R www-data:www-data /var/www/html/     && chmod -R 755 /var/www/html/
+#8 DONE 0.5s
+
+#9 exporting to image
+#9 exporting layers 0.1s done
+#9 writing image sha256:7b451fd4cb666964c6a9489b3f80f9a0ed237beaf5de457394d4be43c8dc6d1f done
+#9 naming to docker.io/***/abode-website:develop-v1.0-6-4134157 done
+#9 DONE 0.1s
+
+[Container] 2026/01/23 17:41:36.725944 Phase complete: BUILD State: SUCCEEDED
+[Container] 2026/01/23 17:41:36.725960 Phase context status code:  Message: 
+[Container] 2026/01/23 17:41:36.762140 Entering phase POST_BUILD
+[Container] 2026/01/23 17:41:36.763346 Running command echo ""
+
+
+[Container] 2026/01/23 17:41:36.769370 Running command echo ""
+
+
+[Container] 2026/01/23 17:41:36.775060 Running command echo "+++++++++++++++++POST BUILD++++++++++++++++++++++++++++++++"
++++++++++++++++++POST BUILD++++++++++++++++++++++++++++++++
+
+[Container] 2026/01/23 17:41:36.780673 Running command echo "Pushing to Docker Hub..."
+Pushing to Docker Hub...
+
+[Container] 2026/01/23 17:41:36.786388 Running command echo "CODEBUILD_WEBHOOK_HEAD_REF:" "$CODEBUILD_WEBHOOK_HEAD_REF"
+CODEBUILD_WEBHOOK_HEAD_REF: refs/heads/develop
+
+[Container] 2026/01/23 17:41:36.791860 Running command BRANCH=$(echo $CODEBUILD_WEBHOOK_HEAD_REF | sed 's|refs/heads/||')
+
+[Container] 2026/01/23 17:41:36.798791 Running command echo "BRANCH:" "$BRANCH"
+BRANCH: develop
+
+[Container] 2026/01/23 17:41:36.804381 Running command COMMIT_SHA=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+
+[Container] 2026/01/23 17:41:36.810767 Running command echo "COMMIT_SHA:" "$COMMIT_SHA"
+COMMIT_SHA: 4134157
+
+[Container] 2026/01/23 17:41:36.816420 Running command BUILD_NUM=${CODEBUILD_BUILD_NUMBER}
+
+[Container] 2026/01/23 17:41:36.821994 Running command echo "BUILD_NUM:" "$BUILD_NUM"
+BUILD_NUM: 6
+
+[Container] 2026/01/23 17:41:36.827538 Running command IMAGE_TAG="${BRANCH}-v1.0-${BUILD_NUM}-${COMMIT_SHA}"
+
+[Container] 2026/01/23 17:41:36.833023 Running command docker push ***/abode-website:${IMAGE_TAG}
+The push refers to repository [docker.io/***/abode-website]
+869ad5310257: Preparing
+4e54b232cc71: Preparing
+f9445cdd87ab: Preparing
+3e59a52a52d1: Preparing
+754d8c63561b: Preparing
+059ad60bcacf: Preparing
+8db5f072feec: Preparing
+67885e448177: Preparing
+ec75999a0cb1: Preparing
+65bdd50ee76a: Preparing
+059ad60bcacf: Waiting
+8db5f072feec: Waiting
+67885e448177: Waiting
+ec75999a0cb1: Waiting
+65bdd50ee76a: Waiting
+754d8c63561b: Layer already exists
+f9445cdd87ab: Layer already exists
+3e59a52a52d1: Layer already exists
+8db5f072feec: Layer already exists
+059ad60bcacf: Layer already exists
+67885e448177: Layer already exists
+ec75999a0cb1: Layer already exists
+65bdd50ee76a: Layer already exists
+4e54b232cc71: Pushed
+869ad5310257: Pushed
+develop-v1.0-6-4134157: digest: sha256:d80a785f4fcb88521cbe83dd72beef296f43d1d130cf39443cf35dc1583af0d4 size: 2405
+
+[Container] 2026/01/23 17:41:47.754108 Running command echo "Push Complete"
+Push Complete
+
+[Container] 2026/01/23 17:41:47.759853 Running command echo "Image:" "***/abode-website:${IMAGE_TAG}"
+Image: ***/abode-website:develop-v1.0-6-4134157
+
+[Container] 2026/01/23 17:41:47.765404 Running command echo "Branch:" "${BRANCH}"
+Branch: develop
+
+[Container] 2026/01/23 17:41:47.770924 Running command echo "Commit:" "${COMMIT_SHA}"
+Commit: 4134157
+
+[Container] 2026/01/23 17:41:47.776723 Phase complete: POST_BUILD State: SUCCEEDED
+[Container] 2026/01/23 17:41:47.776735 Phase context status code:  Message: 
+[Container] 2026/01/23 17:41:47.820241 Set report auto-discover timeout to 5 seconds
+[Container] 2026/01/23 17:41:47.820313 Expanding base directory path:  .
+[Container] 2026/01/23 17:41:47.821799 Assembling file list
+[Container] 2026/01/23 17:41:47.821811 Expanding .
+[Container] 2026/01/23 17:41:47.823381 Expanding file paths for base directory .
+[Container] 2026/01/23 17:41:47.823394 Assembling file list
+[Container] 2026/01/23 17:41:47.823504 Expanding **/*
+[Container] 2026/01/23 17:41:47.825639 No matching auto-discover report paths found
+[Container] 2026/01/23 17:41:47.825654 Report auto-discover file discovery took 0.005412 seconds
+[Container] 2026/01/23 17:41:47.825664 Phase complete: UPLOAD_ARTIFACTS State: SUCCEEDED
+[Container] 2026/01/23 17:41:47.825669 Phase context status code:  Message: 
