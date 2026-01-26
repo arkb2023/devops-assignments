@@ -786,9 +786,9 @@ Register generic webhook URL in Docker Hub repository settings
 
 - Jenkins shows `Abode-Website-Pipeline` Job triggered with Build, Test, Deploy phase execution in sequence   
   ![caption](./images/aws/main/jenkins/02-build-job-10-main-console-output.png)
-  > Job1-Build #10 
-  > Job2-Test #5 
-  > Job3-Prod #2
+  > Job1-Build #10  
+  > Job2-Test #5  
+  > Job3-Prod #2  
 
   > [Abode-Website-Pipeline-Build #10 log file](./images/aws/main/jenkins/main-pipeline.log)
 
@@ -796,8 +796,8 @@ Register generic webhook URL in Docker Hub repository settings
   - Status shows stages executed successfully  
     ![caption](./images/aws/main/jenkins/11-build-job-10-job1-build-10-status-commit-4c76461.png)
     > Note: Commit ID `4c76461`, confirming correlation with GitHub push.  
-    > Note: Coorelation to upstream Job `Abode Website Pipeline` Build #10
-    > Stages: `Checkout SCM`, `Image Validation`, `Post Actions` successful
+    > Note: Coorelation to upstream Job `Abode Website Pipeline` Build #10  
+    > Stages: `Checkout SCM`, `Image Validation`, `Post Actions` successful  
 
   - All Pipeline steps successfully executed  
     ![caption](./images/aws/main/jenkins/13-build-job-10-job1-build-10-pipeline-steps-commit-4c76461.png)  
@@ -881,9 +881,9 @@ Register generic webhook URL in Docker Hub repository settings
 - Codebuild logs: `POST_BUILD` phase    
   ![caption](./images/aws/develop/codebuild/06-codebuild-commit-4134157-logs-post-build-01.png)
   ![caption](./images/aws/develop/codebuild/07-codebuild-commit-4134157-logs-post-build-02.png)
-  > Shows image pushed to Docker Hub
+  > Shows image pushed to Docker Hub  
   > Note sha256: `d80a785f4fcb` for correlation in upcoming stage  
-  > [Build log file](./images/aws/develop/codebuild/build.log)
+  > [Build log file](./images/aws/develop/codebuild/build.log)  
 
 - Docker Hub shows latest uploded image  
   ![caption](./images/aws/develop/dockerhub/01-dh-image-commit-4134157.png)
@@ -898,8 +898,8 @@ Register generic webhook URL in Docker Hub repository settings
 
 - Jenkins shows `Abode-Website-Pipeline` Job triggered with Build and Test phase execution in sequence
   ![caption](./images/aws/develop/jenkins/02-build-job-11-main-console-output.png)
-  > Job1-Build #11 
-  > Job2-Test #6 
+  > Job1-Build #11  
+  > Job2-Test #6  
 
 > [Abode-Website-Pipeline-Build #11 log file](./images/aws/develop/jenkins/main-pipeline.log)
 
@@ -907,8 +907,8 @@ Register generic webhook URL in Docker Hub repository settings
   - Status shows stages executed successfully  
     ![caption](./images/aws/develop/jenkins/11-build-job-11-job1-build-11-status-commit-4134157.png)
     > Note: Commit ID `4134157`, confirming correlation with GitHub push.  
-    > Note: Coorelation to upstream Job `Abode Website Pipeline` Build #11
-    > Stages: `Checkout SCM`, `Image Validation`, `Post Actions` successful
+    > Note: Coorelation to upstream Job `Abode Website Pipeline` Build #11  
+    > Stages: `Checkout SCM`, `Image Validation`, `Post Actions` successful  
 
   - All Pipeline steps successfully executed  
     ![caption](./images/aws/develop/jenkins/13-build-job-11-job1-build-11-pipeline-steps-commit-4134157.png)  
@@ -919,7 +919,7 @@ Register generic webhook URL in Docker Hub repository settings
   - Status shows stages executed successfully  
     ![caption](./images/aws/develop/jenkins/11-build-job-11-job1-build-11-status-commit-4134157.png)  
     > Note: Coorelation to upstream Job `Abode Website Pipeline` Build #11  
-    > Stages: `Checkout SCM`, `Test Deployment`, `Post Actions` successful
+    > Stages: `Checkout SCM`, `Test Deployment`, `Post Actions` successful  
 
   - All Pipeline steps successfully executed  
     ![caption](./images/aws/develop/jenkins/26-build-job-11-job1-test-06-pipeline-steps-commit-4134157.png)
