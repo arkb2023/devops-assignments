@@ -311,7 +311,7 @@ codebuild/
   - `pipelines/deploy-pipeline.groovy`: Executes `scripts/deploy.sh` for production deployment(main branch only), exposes port 80.
 
 **Application Repository Structure (Fork + CICD Enhancements)** [arkb2023/abode-website](https://github.com/arkb2023/abode-website.git)
-```
+```bash
 .
 ├── Dockerfile                          # Container image definition
 ├── buildspec.yml                       # AWS CodeBuild configuration
