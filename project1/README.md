@@ -23,7 +23,7 @@ https://github.com/hshar/website.git
 
 ### 1.1. Functional Requirements
 - Software installation and configuration through configuration management tool (Ansible) on all required machines.
-- GitHub repository acts as source of truth containing application code, `Dockerfile`, `buildspec.yml`, and , and pipeline scripts (`pipelines/Job1-Build.groovy`, `scripts/test-pipeline.groovy`, `scripts/deploy-pipeline.groovy`).
+- GitHub repository acts as source of truth containing application code, `Dockerfile`, `buildspec.yml`, and , and pipeline scripts (`pipelines/Job1-Build.groovy`, `pipelines/test-pipeline.groovy`, `pipelines/deploy-pipeline.groovy`).
 - Commits to `main` or `develop` branches automatically trigger AWS CodeBuild via GitHub webhook.
 - CodeBuild builds Docker image from `Dockerfile` and pushes tagged images to Docker Hub (`arkb2023/abode-website:main-v1.0.xx.<sha>`, `arkb2023/abode-website:develop-v1.0.xx.<sha>`).
 - Dockerfile uses base image `hshar/webapp` with application code copied to `/var/www/html`.  
